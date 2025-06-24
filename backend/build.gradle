@@ -27,9 +27,9 @@ dependencies {
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
 	//oauth2
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	// jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// mysql
@@ -42,7 +42,7 @@ dependencies {
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+//	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
