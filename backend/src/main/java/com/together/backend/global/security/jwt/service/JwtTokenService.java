@@ -1,6 +1,6 @@
-package com.together.backend.global.jwt.service;
+package com.together.backend.global.security.jwt.service;
 
-import com.together.backend.global.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.JWTUtil;
 import com.together.backend.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;

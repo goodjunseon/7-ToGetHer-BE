@@ -1,8 +1,8 @@
-package com.together.backend.global.oauth2;
+package com.together.backend.global.security.oauth2;
 
-import com.together.backend.global.jwt.JWTUtil;
-import com.together.backend.global.jwt.service.JwtTokenService;
-import com.together.backend.global.oauth2.dto.CustomOAuth2User;
+import com.together.backend.global.security.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.service.JwtTokenService;
+import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.together.backend.global.oauth2.dto;
+package com.together.backend.global.security.oauth2.dto;
 
 import lombok.RequiredArgsConstructor;
 

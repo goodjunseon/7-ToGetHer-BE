@@ -1,16 +1,21 @@
-package com.together.backend.user.entity;
+package com.together.backend.user.model.entity;
 
+import com.together.backend.global.common.model.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "user_table")
 @Getter
 @Setter
-public class User {
+@AllArgsConstructor
+@NoArgsConstructor
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,10 +37,6 @@ public class User {
     private LocalDateTime birthYear; // 태어난 연도 : 2000, 2001, ... 형식에 따라 int 또는 String 고려중
 
     private Boolean smoker; // isSmoker는 Lombok 사용시 isIsSmoker()와 헷갈릴 가능성이 있음
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt; // 가입일
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)

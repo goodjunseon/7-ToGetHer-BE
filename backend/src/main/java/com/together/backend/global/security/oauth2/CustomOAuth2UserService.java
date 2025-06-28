@@ -1,11 +1,11 @@
-package com.together.backend.global.oauth2;
+package com.together.backend.global.security.oauth2;
 
-import com.together.backend.global.oauth2.dto.CustomOAuth2User;
-import com.together.backend.global.oauth2.dto.KakaoResponse;
-import com.together.backend.global.oauth2.dto.OAuth2Response;
-import com.together.backend.global.oauth2.dto.UserDTO;
-import com.together.backend.user.entity.Role;
-import com.together.backend.user.entity.User;
+import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
+import com.together.backend.global.security.oauth2.dto.KakaoResponse;
+import com.together.backend.global.security.oauth2.dto.OAuth2Response;
+import com.together.backend.global.security.oauth2.dto.UserDTO;
+import com.together.backend.user.model.entity.Role;
+import com.together.backend.user.model.entity.User;
 import com.together.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

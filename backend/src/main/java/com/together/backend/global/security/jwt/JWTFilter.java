@@ -1,9 +1,9 @@
-package com.together.backend.global.jwt;
+package com.together.backend.global.security.jwt;
 
 
-import com.together.backend.global.oauth2.dto.CustomOAuth2User;
-import com.together.backend.global.oauth2.dto.UserDTO;
-import com.together.backend.user.entity.Role;
+import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
+import com.together.backend.global.security.oauth2.dto.UserDTO;
+import com.together.backend.user.model.entity.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

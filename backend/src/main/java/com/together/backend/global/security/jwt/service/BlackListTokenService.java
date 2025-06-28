@@ -1,6 +1,6 @@
-package com.together.backend.global.jwt.service;
+package com.together.backend.global.security.jwt.service;
 
-import com.together.backend.global.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

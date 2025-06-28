@@ -1,13 +1,14 @@
-package com.together.backend.auth;
+package com.together.backend.user.service;
 
-import com.together.backend.global.jwt.service.BlackListTokenService;
-import com.together.backend.global.jwt.service.JwtTokenService;
+import com.together.backend.global.security.jwt.service.BlackListTokenService;
+import com.together.backend.global.security.jwt.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
-public class AuthService {
+@Service
+public class UserService {
+
     private final BlackListTokenService blackListTokenService;
     private final JwtTokenService jwtTokenService;
 
@@ -18,4 +19,5 @@ public class AuthService {
         // 리프레시 토큰 삭제
         jwtTokenService.refreshTokenDelete(accessToken);
     }
+
 }

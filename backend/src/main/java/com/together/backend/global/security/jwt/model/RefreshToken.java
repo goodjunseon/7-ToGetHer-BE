@@ -1,4 +1,4 @@
-package com.together.backend.global.jwt.model;
+package com.together.backend.global.security.jwt.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,4 +1,4 @@
-package com.together.backend.user.entity;
+package com.together.backend.user.model.entity;
 
 public enum Role {
     ROLE_USER
