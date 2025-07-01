@@ -1,21 +1,71 @@
 package com.together.backend.user.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.together.backend.global.common.BaseResponse;
+import com.together.backend.global.common.BaseResponseStatus;
+import com.together.backend.global.security.jwt.util.CookieUtil;
+import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
+import com.together.backend.user.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserController {
     // 사용자 관련 API 정의
     // 예: 로그인, 사용자 정보 조회, 등
+    private final UserService userService;
 
 
-    @GetMapping("/login/kakao")
-    public String loginWithKakao() {
-        return "카카오 로그인 API";
+    @PostMapping("/logout")
+    public BaseResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
+
+        // 쿠키에서 AccessTokne 꺼내기
+        CookieUtil.getCookieValue(request, "accessToken");
+        String accessToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // AccessToken이 없으면 에러 응답
+        if (accessToken == null) {
+            return new BaseResponse<>(BaseResponseStatus.EMPTY_JWT);
+        }
+
+        userService.logout(accessToken);
+
+        // 로그아웃 성공 시 쿠키 삭제
+        Cookie cookie = CookieUtil.deleteCookie("accessToken");
+        response.addCookie(cookie);
+
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
+
+
+    @DeleteMapping("/")
+    public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomOAuth2User oAuth2User) throws Exception {
+
+        log.info("deleteUser() 호출됨");
+        String email = oAuth2User.getEmail();
+        System.out.println("소셜 아이디: " + email);
+        userService.deleteUser(email);
+
+
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
 
     @GetMapping("/")
     public String getUsers() {
