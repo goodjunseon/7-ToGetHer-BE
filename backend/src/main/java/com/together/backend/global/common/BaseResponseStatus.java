@@ -16,12 +16,17 @@ public enum BaseResponseStatus {
     INTERNAL_SERVER_ERROR(false, 500, "서버 내부 오류입니다."),
 
     // 요청에 성공한 경우 (1000번대)
-    SUCCESS(true, 1000, "요청에 성공하였습니다.");
+    SUCCESS(true, 1000, "요청에 성공하였습니다."),
 
 
     // 요청에 실패한 경우 (도메인 기능 별로 나누기)
 
-    // 2000번대
+    // 2000번대 ( 예: 사용자 관련 에러 코드 )
+
+    USER_NOT_FOUND(false, 2000, "사용자를 찾을 수 없습니다."),
+    EMPTY_JWT(false, 2001, "JWT가 비어있습니다.");
+
+
 
 
     // 3000번대
