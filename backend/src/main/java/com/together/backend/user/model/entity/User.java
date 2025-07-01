@@ -30,13 +30,10 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 100)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 50)
-    private Gender gender;
+    @Column
+    private String profileImageUrl; // 프로필 이미지 URL
 
-    private LocalDateTime birthYear; // 태어난 연도 : 2000, 2001, ... 형식에 따라 int 또는 String 고려중
-
-    private Boolean smoker; // isSmoker는 Lombok 사용시 isIsSmoker()와 헷갈릴 가능성이 있음
+    private Boolean isTakingPill = false; // 약 복용 여부
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
