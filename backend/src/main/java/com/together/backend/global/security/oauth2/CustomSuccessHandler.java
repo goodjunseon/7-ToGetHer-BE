@@ -1,6 +1,7 @@
 package com.together.backend.global.security.oauth2;
 
-import com.together.backend.global.security.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.util.CookieUtil;
+import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.jwt.service.JwtTokenService;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
 import jakarta.servlet.ServletException;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -17,6 +19,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -26,32 +30,27 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        System.out.println("CustomSuccessHandler 실행됨");
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Referer: " + request.getHeader("referer"));
+        log.info("CustomSuccessHandler: onAuthenticationSuccess 호출됨");
 
         // OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
-        String socialId = customUserDetails.getSocialId();
+        String email = customUserDetails.getEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = "ROLE_USER"; // 기본값으로 ROLE_USER 설정
 
-        String token = jwtUtil.createToken(socialId, role);
-        System.out.println("Generated JWT Token: " + token);  // ✅ 토큰 생성 확인
+        String accessToken = jwtUtil.createToken(email, role);
+        String refreshToken = jwtUtil.createRefreshToken(email);
 
-        Cookie accessCookie = createCookie("accessToken", token);
-        System.out.println("Setting Cookie: " + accessCookie.getName() + "=" + accessCookie.getValue()); // ✅ 쿠키 확인
+        CookieUtil.createCookie(response,"accessToken", accessToken);
+        CookieUtil.createCookie(response, "refreshToken", refreshToken);
 
-        String refreshToken = jwtUtil.createRefreshToken(socialId);
-        jwtTokenService.refreshTokenSave(socialId, refreshToken);
-
+        jwtTokenService.refreshTokenSave(email, refreshToken);
 
         // 개발 환경 테스트용
-        response.addCookie(accessCookie);
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -61,17 +60,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // 프론트와 연결 후 리디렉션 설정
 //        response.addCookie(createCookie("accessToken", token));
+//        response.addCookie(createCookie("refreshToken", refreshToken));
 //        response.sendRedirect("http://localhost:3000/");
-    }
-
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setPath("/"); // 모든 경로에서 접근 가능
-        cookie.setMaxAge(60*60*12); // 12시간
-        cookie.setSecure(false); // 배포시 true로 변경하여 HTTPS에서만 전송되도록 설정
-        cookie.setHttpOnly(true); // JavaScript에서 접근 불가
-
-        return cookie;
     }
 }

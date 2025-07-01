@@ -19,7 +19,8 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String refreshToken;
-    private String socialId; // 소셜 로그인 ID (예: "kakao_1234567890")
+    private String email;
+//    private String socialId; // 소셜 로그인 ID (예: "kakao_1234567890")
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
