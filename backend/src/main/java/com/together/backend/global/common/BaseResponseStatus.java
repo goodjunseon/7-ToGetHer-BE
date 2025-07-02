@@ -11,8 +11,7 @@ public enum BaseResponseStatus {
 
     // 200번대
     OK(true, 200, "요청에 성공하였습니다."), // HTTP 200 OK 응답
-    CREATED(true, 201, "요청에 성공하였습니다."), // HTTP 201 Created 응답
-    NO_CONTENT(true, 204, "요청에 성공하였습니다."), // HTTP 204 No Content 응답
+
 
     // 300번대
     MOVED_PERMANENTLY(true, 301, "요청에 성공하였습니다."), // HTTP 301 Moved Permanently 응답
