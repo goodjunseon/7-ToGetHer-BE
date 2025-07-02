@@ -41,7 +41,7 @@ public class UserController {
 
         // AccessToken이 없으면 에러 응답
         if (accessToken == null) {
-            return new BaseResponse<>(BaseResponseStatus.EMPTY_JWT);
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
 
         userService.logout(accessToken);
@@ -50,7 +50,7 @@ public class UserController {
         Cookie cookie = CookieUtil.deleteCookie("accessToken");
         response.addCookie(cookie);
 
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>(BaseResponseStatus.OK);
     }
 
 
@@ -63,7 +63,7 @@ public class UserController {
         userService.deleteUser(email);
 
 
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>(BaseResponseStatus.OK);
     }
 
 
