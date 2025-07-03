@@ -20,12 +20,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create env files
+      - name: Create .env files
         run: echo "${{ secrets.ENV_FILE_CONTENT }}" > backend/.env
 
       - name: Build Spring Boot App
         run: ./gradlew clean build -x test
         working-directory: backend
+
+      - name: List build output
+        run: ls -al backend/build/libs
 
       - name: Upload Jar and .env to EC2
         uses: appleboy/scp-action@v0.1.3
