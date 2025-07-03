@@ -44,6 +44,27 @@ jobs:
       - name: List build artifacts
         run: ls -al backend/build/libs
 
+      # 🔎 빌드 결과 파일 및 .env 파일 존재 여부 확인
+      - name: 🔎 Check existence of .env and JAR
+        run: |
+          echo "[✅ 디버깅] backend/.env 존재 여부:"
+          if [ -f backend/.env ]; then
+          echo "✅ .env exists"
+          else
+          echo "❌ .env NOT found!"
+          exit 1
+          fi
+          
+          echo ""
+          echo "[✅ 디버깅] backend/build/libs/*.jar 존재 여부:"
+          ls -al backend/build/libs || echo "❌ 해당 디렉토리 없음"
+          if ls backend/build/libs/backend-0.0.1-SNAPSHOT.jar 1> /dev/null 2>&1; then
+          echo "✅ JAR exists"
+          else
+          echo "❌ JAR NOT found!"
+          exit 1
+          fi
+
       # 7. EC2로 .jar와 .env 파일 업로드 (디렉토리 제거 후 deploy에 배치)
       - name: Upload Jar and .env to EC2
         uses: appleboy/scp-action@v0.1.3
