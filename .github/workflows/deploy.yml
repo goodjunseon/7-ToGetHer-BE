@@ -64,8 +64,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-            ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar
-            ./.env
+            backend/build/libs/backend-0.0.1-SNAPSHOT.jar
+            .env
           target: ~/deploy/
           strip_components: 0
 
