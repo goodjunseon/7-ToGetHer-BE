@@ -4,19 +4,19 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
 
     steps:
       # 1. GitHub 레포지토리 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 2. GitHub Secrets로부터 .env 파일 생성
-      - name: Create .env files
-        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+      # 2. GitHub Secrets로부터 .env 파일 생성 (backend 디렉토리에 생성)
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > backend/.env
 
       # 3. JDK 17 설치
       - name: Set up JDK 17
@@ -29,11 +29,12 @@ jobs:
       - name: Check .env file
         run: |
           echo "[🔍 .env 파일 확인]"
-          ls -al .env
+          ls -al backend/.env
           echo ""
           echo "[📄 .env 파일 내용]"
-          cat .env
-      # 5. Gradle 빌드 실행 (테스트는 제외)
+          cat backend/.env
+
+      # 5. Gradle 빌드 실행 (테스트 제외)
       - name: 🛠️ Build Spring Boot App
         run: |
           cd backend
@@ -43,7 +44,7 @@ jobs:
       - name: List build artifacts
         run: ls -al backend/build/libs
 
-      # 7. EC2로 .jar와 .env 파일 업로드 (폴더 구조 제거)
+      # 7. EC2로 .jar와 .env 파일 업로드 (디렉토리 제거 후 deploy에 배치)
       - name: Upload Jar and .env to EC2
         uses: appleboy/scp-action@v0.1.3
         with:
@@ -51,26 +52,28 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-            ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar
-            ./.env
+            backend/build/libs/backend-0.0.1-SNAPSHOT.jar
+            backend/.env
           target: ~/deploy/
-          strip_components: 1 # 디렉토리 제거하고 파일만 ~/deploy에 업로드
+          strip_components: 1
 
+      # 8. EC2에서 Spring Boot 실행
       - name: Run Spring Boot App on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_USER }}
-            key: ${{ secrets.EC2_SSH_KEY }}
-            script: |
-              echo "[MySQL, Redis 재시작]"
-              sudo systemctl restart mysql
-              sudo systemctl restart redis
-              
-              echo "[기존 Spring Boot 프로세스 종료 시도]"
-              pkill -f 'java -jar' || true
-              cd ~/deploy
-              nohup env $(cat .env | xargs) java -jar backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-              echo "[실행 완료! 로그: tail -f ~/deploy/app.log]"
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "[🔁 MySQL, Redis 재시작]"
+            sudo systemctl restart mysql
+            sudo systemctl restart redis
 
+            echo "[🛑 기존 Spring Boot 프로세스 종료]"
+            pkill -f 'java -jar' || true
 
+            echo "[🚀 Spring Boot 앱 실행]"
+            cd ~/deploy
+            nohup env $(cat .env | xargs) java -jar backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
+            echo "[📄 로그 확인: tail -f ~/deploy/app.log]"
