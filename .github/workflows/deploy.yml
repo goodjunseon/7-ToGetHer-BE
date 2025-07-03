@@ -29,10 +29,10 @@ jobs:
       - name: Check .env file
         run: |
           echo "[🔍 .env 파일 확인]"
-          ls -al backend/.env
+          ls -al .env
           echo ""
           echo "[📄 .env 파일 내용]"
-          cat backend/.env
+          cat .env
       # 5. Gradle 빌드 실행 (테스트는 제외)
       - name: 🛠️ Build Spring Boot App
         run: |
