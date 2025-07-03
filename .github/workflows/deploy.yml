@@ -27,8 +27,7 @@ jobs:
         run: cat backend/.env
 
       - name: Build Spring Boot App
-        run: ./gradlew clean build -x test
-        working-directory: backend
+        run: cd backend && ./gradlew clean build -x test
 
       - name: List build output
         run: ls -al backend/build/libs
