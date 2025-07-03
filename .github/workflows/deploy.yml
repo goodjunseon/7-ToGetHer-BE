@@ -66,7 +66,7 @@ jobs:
           source: |
             backend/build/libs/backend-0.0.1-SNAPSHOT.jar
           target: ~/deploy/
-          strip_components: 0
+          strip_components: 3
 
         # 6.2 EC2로 .env 업로드
       - name: Upload .env to EC2
