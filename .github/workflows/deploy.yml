@@ -56,8 +56,8 @@ jobs:
           echo "[📂 .env 파일 존재 확인]"
           ls -al ./.env
 
-      # 6. EC2로 jar와 .env 업로드
-      - name: Upload Jar and .env to EC2
+      # 6.1 EC2로 jar 업로드
+      - name: Upload Jar to EC2
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -65,7 +65,17 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
             backend/build/libs/backend-0.0.1-SNAPSHOT.jar
-            .env
+          target: ~/deploy/
+          strip_components: 0
+
+        # 6.2 EC2로 .env 업로드
+      - name: Upload .env to EC2
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: .env
           target: ~/deploy/
           strip_components: 0
 
