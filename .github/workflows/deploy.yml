@@ -47,6 +47,15 @@ jobs:
           echo "[✅ .env 존재 확인]"
           ls -lh ./.env || echo "❌ .env 파일 없음"
 
+      - name: 디버깅 현재 위치와 파일 존재 여부 확인
+        run: |
+          echo "[🔍 현재 작업 디렉토리]"
+          pwd
+          echo "[📂 backend/build/libs/ 안의 파일]"
+          ls -al ./backend/build/libs
+          echo "[📂 .env 파일 존재 확인]"
+          ls -al ./.env
+
       # 6. EC2로 jar와 .env 업로드
       - name: Upload Jar and .env to EC2
         uses: appleboy/scp-action@v0.1.3
