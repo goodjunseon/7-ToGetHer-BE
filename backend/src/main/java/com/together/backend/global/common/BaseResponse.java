@@ -13,7 +13,7 @@ public class BaseResponse<T> {
 
     @JsonProperty("isSuccess")
     private final Boolean isSuccess; // true or false
-    private final int code; // HTTP 상태 코드
+    private final int status; // HTTP 상태 코드
     private final String message; // 응답 메시지
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private  T result;
@@ -21,7 +21,7 @@ public class BaseResponse<T> {
     // 요청에 성공한 경우
     public BaseResponse(T result) {
         this.isSuccess = BaseResponseStatus.SUCCESS.isSuccess();
-        this.code = BaseResponseStatus.SUCCESS.getCode();
+        this.status = BaseResponseStatus.SUCCESS.getCode();
         this.message = BaseResponseStatus.SUCCESS.getMessage();
         this.result = result;
     }
@@ -29,7 +29,7 @@ public class BaseResponse<T> {
     // 요청에 실패한 경우
     public BaseResponse(BaseResponseStatus status) {
         this.isSuccess = status.isSuccess();
-        this.code = status.getCode();
+        this.status = status.getCode();
         this.message = status.getMessage();
     }
 
@@ -37,7 +37,7 @@ public class BaseResponse<T> {
     public BaseResponse(BaseResponseStatus status, T result) {
         this.isSuccess = status.isSuccess();
         this.message = status.getMessage();
-        this.code = status.getCode();
+        this.status = status.getCode();
         this.result = result;
     }
 }

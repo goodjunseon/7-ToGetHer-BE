@@ -1,4 +1,4 @@
-package com.together.backend.global.security.jwt;
+package com.together.backend.global.security.jwt.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

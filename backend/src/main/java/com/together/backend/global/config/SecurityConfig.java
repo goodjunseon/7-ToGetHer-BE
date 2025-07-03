@@ -1,7 +1,8 @@
 package com.together.backend.global.config;
 
 import com.together.backend.global.security.jwt.JWTFilter;
-import com.together.backend.global.security.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.util.CookieUtil;
+import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.CustomOAuth2UserService;
 import com.together.backend.global.security.oauth2.CustomSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,8 +53,8 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests(auth-> auth
-                                .requestMatchers("/**").permitAll() // 개발 환경에서 모든 요청 허용
-//                        .requestMatchers ("/", "/oauth2/**", "/public/**").permitAll()
+//                                .requestMatchers("/**").permitAll() // 개발 환경에서 모든 요청 허용
+                        .requestMatchers ("/", "/oauth2/**", "api/user/login/kakao").permitAll()
                         .anyRequest().authenticated() // 인증이 필요할 땐 자동으로 oauth2Login() 실행
                 );
 

@@ -1,6 +1,7 @@
 package com.together.backend.global.security.jwt.service;
 
-import com.together.backend.global.security.jwt.JWTUtil;
+import com.together.backend.global.security.jwt.util.JWTUtil;
+import com.together.backend.user.model.entity.User;
 import com.together.backend.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class JwtTokenService {
     private final JWTUtil jwtUtil;
+    @Qualifier("redisTemplate")
     private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
 
@@ -27,14 +29,14 @@ public class JwtTokenService {
     }
 
     // Refresh Token을 Redis에 저장하는 메서드
-    public void refreshTokenSave(String socialId, String refreshToken) {
+    public void refreshTokenSave(String email, String refreshToken) {
         try {
-            System.out.println(">>> 저장시도: " + socialId + " / " + refreshToken);
+            System.out.println(">>> 저장시도: " + email + " / " + refreshToken);
             System.out.println(">>> RedisTemplate: " + redisTemplate);
             Long expiration = jwtUtil.getExpiration(refreshToken); // 만료 시간
 
-            System.out.println("refreshToken Redis 저장 시도: " + socialId + " / " + refreshToken + " / 만료시간: " + expiration);
-            redisTemplate.opsForValue().set("refreshToken:" + socialId,
+            System.out.println("refreshToken Redis 저장 시도: " + email + " / " + refreshToken + " / 만료시간: " + expiration);
+            redisTemplate.opsForValue().set("refreshToken:" + email,
                     refreshToken,
                     expiration,
                     TimeUnit.MILLISECONDS);
@@ -46,10 +48,10 @@ public class JwtTokenService {
     // Refresh Token 제거
     @Transactional
     public void refreshTokenDelete(String refreshToken) {
-        // 1. 토큰에서 socialId 추출
-        String socialId = jwtUtil.getUsername(refreshToken); // socialId 추출
-        if (socialId != null) {
-            redisTemplate.delete("refreshToken:" + socialId);
+        // 1. 토큰에서 email 추출
+        String email = jwtUtil.getUsername(refreshToken); // email 추출
+        if (email != null) {
+            redisTemplate.delete("refreshToken:" + email);
         }
     }
 
@@ -59,8 +61,8 @@ public class JwtTokenService {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
         }
 
-        String socialId = jwtUtil.getUsername(refreshToken);
-        String stored = redisTemplate.opsForValue().get("refreshToken:" + socialId);
+        String email = jwtUtil.getUsername(refreshToken);
+        String stored = redisTemplate.opsForValue().get("refreshToken:" + email);
 
         if (stored == null || !stored.equals(refreshToken)) {
             throw new RuntimeException("Refresh Token 불일치");
@@ -68,7 +70,7 @@ public class JwtTokenService {
 
         // 3. 새로운 Access Token 생성
         String role = jwtUtil.getRole(refreshToken);
-        return jwtUtil.createToken(socialId, role);
+        return jwtUtil.createToken(email, role);
     }
 
 }
