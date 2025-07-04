@@ -22,6 +22,10 @@ public class UserController {
     // 예: 로그인, 사용자 정보 조회, 등
     private final UserService userService;
 
+    /*
+    * 쿠키 관련 로직은 HTTP 응답에 직접적으로 관여하는 작업이므로 서비스 계층이 아닌 컨트롤러 계층에서 처리하는 것이 적합
+    * 서비스 계층은 비즈니스 로직만 담당, HTTP 관련 작업(쿠키,세션)은 컨트롤러 계층에서 처리하는 것이 적합하다.
+     */
 
     @PostMapping("/logout")
     public BaseResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
