@@ -27,17 +27,7 @@ public class UserController {
     public BaseResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
 
         // 쿠키에서 AccessTokne 꺼내기
-        CookieUtil.getCookieValue(request, "accessToken");
-        String accessToken = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if("accessToken".equals(cookie.getName())) {
-                    accessToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String accessToken = CookieUtil.getCookieValue(request, "accessToken");
 
         // AccessToken이 없으면 에러 응답
         if (accessToken == null) {
