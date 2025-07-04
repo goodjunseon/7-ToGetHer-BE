@@ -40,8 +40,7 @@ public class UserController {
 
         userService.logout(accessToken);
 
-        // 로그아웃 성공 시 쿠키 삭제
-        Cookie cookie = CookieUtil.deleteCookie("accessToken");
+        Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
         response.addCookie(cookie);
 
         return new BaseResponse<>(BaseResponseStatus.OK);
