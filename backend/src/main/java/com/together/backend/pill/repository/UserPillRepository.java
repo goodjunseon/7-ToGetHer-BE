@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface UserPillRepository extends JpaRepository<UserPill, Long> {
     Optional<UserPill> findByUser(User user);
+    Optional<UserPill> findByUser_UserId(Long userId);
 }
