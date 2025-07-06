@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class CalendarService {
@@ -104,8 +105,10 @@ public class CalendarService {
                         System.out.println("[에러] Partner 정보 없음 for userId=" + user.getUserId());
                         return new RuntimeException("파트너 정보 없음");
                     });
+
             Long partnerUserId = partner.getPartnerUserId();
-            User partnerUser = userRepository.findByUserId(partnerUserId);
+            Optional<User> partnerUserOpt = userRepository.findByUserId(partnerUserId);
+            User partnerUser = partnerUserOpt.orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
             System.out.println("[캘린더 기록] partnerUser=" + partnerUser);
 
             // 5. RelationRecord 조회/생성

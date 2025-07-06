@@ -12,8 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -38,12 +40,14 @@ public class CalendarController {
         }
         // 실제 DB의 User 조회
         String email = customUser.getEmail();
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED));
         }
+        User user = userOpt.get(); // 또는 userOpt.orElseThrow(() -> ...);
+
         try {
             calendarService.saveCalendarRecord(user, request);
             return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, null));
