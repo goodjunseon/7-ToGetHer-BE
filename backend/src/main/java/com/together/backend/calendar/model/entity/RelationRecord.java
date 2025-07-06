@@ -1,6 +1,5 @@
 package com.together.backend.calendar.model.entity;
 
-import com.together.backend.calendar.model.CondomUsage;
 import com.together.backend.user.model.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.together.backend.calendar.dto;
 
-import com.together.backend.calendar.model.CondomUsage;
+import com.together.backend.calendar.model.entity.CondomUsage;
 import lombok.*;
 
 // 캘린더 기록 등록용 DTO

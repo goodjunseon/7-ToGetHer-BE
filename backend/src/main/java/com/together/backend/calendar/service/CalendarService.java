@@ -8,6 +8,8 @@ import com.together.backend.calendar.model.entity.RelationRecord;
 import com.together.backend.calendar.repository.BasicRecordRepository;
 import com.together.backend.calendar.repository.IntakeRecordRepository;
 import com.together.backend.calendar.repository.RelationRecordRepository;
+import com.together.backend.partner.model.entity.Partner;
+import com.together.backend.partner.repository.PartnerRepository;
 import com.together.backend.user.model.entity.User;
 import com.together.backend.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,18 +25,21 @@ public class CalendarService {
     private final BasicRecordRepository basicRecordRepository;
     private final IntakeRecordRepository intakeRecordRepository;
     private final UserRepository userRepository;
+    private final PartnerRepository partnerRepository;
 
     @Autowired
     public CalendarService(
             RelationRecordRepository relationRecordRepository,
             BasicRecordRepository basicRecordRepository,
             IntakeRecordRepository intakeRecordRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            PartnerRepository partnerRepository
     ) {
         this.relationRecordRepository = relationRecordRepository;
         this.basicRecordRepository = basicRecordRepository;
         this.intakeRecordRepository = intakeRecordRepository;
         this.userRepository = userRepository;
+        this.partnerRepository = partnerRepository;
     }
 
     // 캘린더 기록 저장
@@ -45,7 +50,7 @@ public class CalendarService {
         Long userId = user.getUserId();
 
         // 파트너 조회
-        Partner partner = partnerRepository.findByUserId(userId)
+        Partner partner = partnerRepository.findByUser_UserId(userId)
                 .orElseThrow(() -> new RuntimeException("파트너 정보 없음"));
         Long partnerUserId = partner.getPartnerUserId();
         User partnerUser = userRepository.findByUserId(partnerUserId);

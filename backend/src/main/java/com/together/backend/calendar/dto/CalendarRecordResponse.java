@@ -1,6 +1,6 @@
 package com.together.backend.calendar.dto;
 
-import com.together.backend.calendar.model.CondomUsage;
+import com.together.backend.calendar.model.entity.CondomUsage;
 import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
