@@ -1,7 +1,6 @@
 package com.together.backend.global.config;
 
 import com.together.backend.global.security.jwt.JWTFilter;
-import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.CustomOAuth2UserService;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final BlackListTokenService blackListTokenService;
     private final CustomSuccessHandler customSuccessHandler;
     private final JWTUtil jwtUtil;
 
@@ -39,7 +37,7 @@ public class SecurityConfig {
 
         //== jwt 설정 ==//
         http
-                .addFilterBefore(new JWTFilter(jwtUtil, blackListTokenService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         //== 소셜 로그인 설정 ==//
         http
@@ -56,7 +54,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth-> auth
 //                                .requestMatchers("/**").permitAll() // 개발 환경에서 모든 요청 허용
-                        .requestMatchers ("/", "/oauth2/**", "/api/user/login/kakao").permitAll()
+                        .requestMatchers ("/", "/oauth2/**", "api/user/login/kakao").permitAll()
                         .anyRequest().authenticated() // 인증이 필요할 땐 자동으로 oauth2Login() 실행
                 );
 

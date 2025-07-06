@@ -21,15 +21,7 @@ public class BlackListTokenService {
         Long expiration = jwtUtil.getExpiration(accessToken);
 
         // 2. Redis에 저장: key = "blacklist:{토큰}", value = "logout"
-        redisTemplate.opsForValue().set("blacklist: " + accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean isBlackListed(String accessToken) {
-        // 1. Redis에서 블랙리스트 토큰 조회
-        String value = redisTemplate.opsForValue().get("blacklist: " + accessToken);
-
-        // 2. 블랙리스트에 존재하면 true 반환
-        return value != null && value.equals("logout");
+        redisTemplate.opsForValue().set("blacklist: " + accessToken, "logout", expiration, TimeUnit.MICROSECONDS);
     }
 
 }
