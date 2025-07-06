@@ -6,6 +6,7 @@ import com.together.backend.user.model.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Entity
 @Table(name = "basic_record")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -23,5 +24,10 @@ public class BasicRecord {
 
     @Column(name = "occured_at")
     private LocalDateTime occuredAt;
+
+    // 관계: 복용 기록
+    @ManyToOne
+    @JoinColumn(name = "intake_id")
+    private IntakeRecord intakeRecord;
 }
 
