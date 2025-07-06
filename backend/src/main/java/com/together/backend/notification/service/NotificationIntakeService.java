@@ -1,6 +1,6 @@
 package com.together.backend.notification.service;
 
-import com.together.backend.notification.model.NotificationSetting;
+import com.together.backend.notification.model.NotificationSettings;
 import com.together.backend.notification.model.NotificationType;
 import com.together.backend.notification.model.intake.response.IntakeResponse;
 import com.together.backend.notification.repository.NotificationSettingsRepository;
@@ -30,7 +30,7 @@ public class NotificationIntakeService {
         }
 
         // NotificationSetting 엔티티를 user와 NotificationType으로 조회
-        NotificationSetting setting = NotificationSetting.builder()
+        NotificationSettings setting = NotificationSettings.builder()
                 .user(user)
                 .type(NotificationType.PILL_INTAKE)
                 .isEnabled(true)
@@ -46,7 +46,7 @@ public class NotificationIntakeService {
         // 이메일로 사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        NotificationSetting setting = notificationSettingsRepository.findByUserAndType(user,NotificationType.PILL_INTAKE)
+        NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user,NotificationType.PILL_INTAKE)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
         setting.setNotificationTime(intakeTime);

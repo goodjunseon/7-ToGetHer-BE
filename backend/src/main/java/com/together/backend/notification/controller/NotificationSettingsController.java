@@ -17,7 +17,7 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
-public class NotificationController {
+public class NotificationSettingsController {
     private final NotificationIntakeService notificationIntakeService;
 
     // 피임약 복용 알림 시간 저장

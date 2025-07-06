@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @Builder
 @Entity
 @Table(name = "notification_table") // 알림 테이블
-public class NotificationSetting {
+public class NotificationSettings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
