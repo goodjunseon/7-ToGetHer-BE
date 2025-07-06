@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,10 +36,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
 
-        User existData = userRepository.findByEmail(kakaoResponse.getEmail()); // 이메일로 사용자 조회
+        Optional<User> existData = userRepository.findByEmail(kakaoResponse.getEmail()); // 이메일로 사용자 조회
 
         // 신규 회원일 때
-        if (existData == null) {
+        if (existData.isEmpty()) {
             User user = new User();
             user.setSocialId(kakaoResponse.getSocialId());
             user.setNickname(kakaoResponse.getName());
@@ -57,16 +59,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         // 기존 회원일 때
         else {
-
+            // Optional에서 User 객체 추출
+            User user = existData.get();
             // 이메일 또는 닉네임이 변경되었는지 확인
-            if (!existData.getNickname().equals(kakaoResponse.getName())||
-            !existData.getEmail().equals(kakaoResponse.getEmail()) ||
-            !existData.getProfileImageUrl().equals(kakaoResponse.getProfileImageUrl())) {
+            if (!user.getNickname().equals(kakaoResponse.getName())||
+            !user.getEmail().equals(kakaoResponse.getEmail()) ||
+            !user.getProfileImageUrl().equals(kakaoResponse.getProfileImageUrl())) {
                 log.info("기존 사용자 정보 업데이트: 이메일 또는 닉네임 변경");
-                existData.setEmail(kakaoResponse.getEmail());
-                existData.setNickname(kakaoResponse.getName());
-                existData.setProfileImageUrl(kakaoResponse.getProfileImageUrl());
-                userRepository.save(existData); // 변경된 내용 저장
+                user.setEmail(kakaoResponse.getEmail());
+                user.setNickname(kakaoResponse.getName());
+                user.setProfileImageUrl(kakaoResponse.getProfileImageUrl());
+                userRepository.save(user); // 변경된 내용 저장
             }
 
             UserDTO userDTO = UserDTO.builder()
@@ -74,7 +77,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .name(kakaoResponse.getName())
                     .email(kakaoResponse.getEmail())
                     .profileImageUrl(kakaoResponse.getProfileImageUrl())
-                    .role(existData.getRole())
+                    .role(user.getRole())
                     .build();
             return new CustomOAuth2User(userDTO);
         }
