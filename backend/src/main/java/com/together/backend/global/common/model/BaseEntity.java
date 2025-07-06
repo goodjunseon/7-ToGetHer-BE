@@ -3,7 +3,7 @@ package com.together.backend.global.common.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -23,13 +23,13 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false)
     @JsonSerialize(using =  LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt; // 생성 시간
 
 
     @LastModifiedDate
     @Column(insertable = false)
     @JsonSerialize(using =  LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modifiedAt; // 수정 시간
 }
