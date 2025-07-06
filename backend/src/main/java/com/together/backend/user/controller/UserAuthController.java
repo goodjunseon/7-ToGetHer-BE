@@ -20,10 +20,9 @@ public class UserAuthController {
     @PostMapping("/token/refresh")
     public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
-        String accessToken = CookieUtil.getCookieValue(request, "accessToken");
         String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
         // 새로운 AccessToken 발급
-        String newAccessToken = jwtTokenService.reissueAccessToken(accessToken, refreshToken);
+        String newAccessToken = jwtTokenService.reissueAccessToken(refreshToken);
 
         if (newAccessToken != null) {
             // 새로운 AccessToken을 쿠키에 저장

@@ -56,11 +56,7 @@ public class JwtTokenService {
     }
 
     // Access 토큰 재발급
-    public String reissueAccessToken(String accessToken ,String refreshToken) {
-        if (redisTemplate.hasKey("blacklist: " + accessToken)) {
-            throw new RuntimeException("블랙리스트에 등록된 토큰입니다.");
-        }
-
+    public String reissueAccessToken(String refreshToken) {
         if (!jwtUtil.validateToken(refreshToken)) {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
         }

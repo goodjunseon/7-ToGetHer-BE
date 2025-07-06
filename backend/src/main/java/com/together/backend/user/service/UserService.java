@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -20,16 +18,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void deleteUser(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
         log.info("이메일: {}", email);
 
 
-        if (optionalUser.isEmpty()) {
+        if (user == null) {
             log.warn("사용자를 찾을 수 없습니다: {}", email);
             throw new RuntimeException("사용자를 찾을 수 없습니다.");
         }
 
-        User user = optionalUser.get();
         userRepository.delete(user);
         log.info("userRepository.delete(user) 호출: {}", user.getEmail());
 
