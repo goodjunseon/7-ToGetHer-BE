@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CalendarService {
 
+
     public void saveMaleRecord(User user, CalendarRecordRequest request) {
         // 남성 기록 저장 로직
     }
