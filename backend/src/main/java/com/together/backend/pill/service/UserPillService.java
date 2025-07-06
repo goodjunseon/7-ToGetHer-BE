@@ -11,6 +11,7 @@ import com.together.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeParseException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserPillService {
 
     private final IntakeInfoRepository intakeInfoRepository;
@@ -59,4 +61,30 @@ public class UserPillService {
         }
     }
 
+    public IntakeOption updateUserPill(UserPillRequest dto, String email) {
+        // 사용자 조회
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+
+        // 기존 UserPill 조회
+        UserPill userPill = userPillRepository.findByUser(user).orElseThrow(()-> new IllegalArgumentException("약 복용 정보가 없습니다: " + email));
+
+        // IntakeOption 업데이트
+        IntakeOption newOption = IntakeOption.valueOf(dto.getOption());
+        IntakeInfo intakeInfo = userPill.getIntakeInfo();
+        intakeInfo.setOption(newOption);
+        intakeInfoRepository.save(intakeInfo);
+        log.info("IntakeInfo 업데이트 성공: {}", intakeInfo);
+
+        // 시작 날짜 업데이트
+        try {
+            LocalDate newStartDate = LocalDate.parse(dto.getStartDate());
+            userPill.setStartDate(newStartDate);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("잘못된 날짜 형식: " + dto.getStartDate(), e);
+        }
+
+        userPillRepository.save(userPill);
+        log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
+        return newOption;
+    }
 }

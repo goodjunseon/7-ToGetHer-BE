@@ -3,15 +3,13 @@ package com.together.backend.pill.model;
 import com.together.backend.global.common.model.BaseEntity;
 import com.together.backend.user.model.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,7 +34,7 @@ public class UserPill extends BaseEntity {
     private LocalDate startDate;
 
     @Column(name = "current_remain")
-    private Integer currentRemain; //
+    private Integer currentRemain;
 
     @Column(name = "next_purchase_alert")
     private LocalDate nextPurchaseAlert; // 다음 구매 알림 날짜
