@@ -21,6 +21,5 @@ public class IntakeRecord {
     private LocalDate intakeDate;
     private LocalTime intakeTime;
     private Boolean isTaken;
-    private String memo;
 }
 

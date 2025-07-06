@@ -28,7 +28,7 @@ public class CalendarController {
             @AuthenticationPrincipal User user
     ) {
         try {
-            calendarService.saveRecord(user, request);
+            calendarService.saveCalendarRecord(user, request);
             List<CalendarRecordResponse> records = calendarService.getCalendarList(user);
             return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, records));
         } catch (Exception e) {
