@@ -29,8 +29,7 @@ public class CalendarController {
     ) {
         try {
             calendarService.saveCalendarRecord(user, request);
-            List<CalendarRecordResponse> records = calendarService.getCalendarList(user);
-            return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, records));
+            return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, null));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
