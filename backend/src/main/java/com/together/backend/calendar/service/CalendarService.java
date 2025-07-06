@@ -10,6 +10,8 @@ import com.together.backend.calendar.repository.IntakeRecordRepository;
 import com.together.backend.calendar.repository.RelationRecordRepository;
 import com.together.backend.partner.model.entity.Partner;
 import com.together.backend.partner.repository.PartnerRepository;
+import com.together.backend.pill.model.UserPill;
+import com.together.backend.pill.repository.UserPillRepository;
 import com.together.backend.user.model.entity.User;
 import com.together.backend.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +28,7 @@ public class CalendarService {
     private final IntakeRecordRepository intakeRecordRepository;
     private final UserRepository userRepository;
     private final PartnerRepository partnerRepository;
+    private final UserPillRepository userPillRepository;
 
     @Autowired
     public CalendarService(
@@ -33,71 +36,110 @@ public class CalendarService {
             BasicRecordRepository basicRecordRepository,
             IntakeRecordRepository intakeRecordRepository,
             UserRepository userRepository,
-            PartnerRepository partnerRepository
+            PartnerRepository partnerRepository,
+            UserPillRepository userPillRepository
     ) {
         this.relationRecordRepository = relationRecordRepository;
         this.basicRecordRepository = basicRecordRepository;
         this.intakeRecordRepository = intakeRecordRepository;
         this.userRepository = userRepository;
         this.partnerRepository = partnerRepository;
+        this.userPillRepository = userPillRepository;
     }
 
-    // 캘린더 기록 저장
     @Transactional
     public void saveCalendarRecord(User user, CalendarRecordRequest request) {
-        LocalDate date = LocalDate.parse(request.getDate());
-        String email = user.getEmail();
-        Long userId = user.getUserId();
+        try {
+            System.out.println("[캘린더 기록] user=" + user);
 
-        // 파트너 조회
-        Partner partner = partnerRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new RuntimeException("파트너 정보 없음"));
-        Long partnerUserId = partner.getPartnerUserId();
-        User partnerUser = userRepository.findByUserId(partnerUserId);
-        // 1. 복용 기록
-        IntakeRecord intakeRecord = intakeRecordRepository
-                .findByUserEmailAndIntake(email, date)
-                .orElseThrow(() -> new RuntimeException("복용 기록 없음"));
-        if (request.getTakenPill() != null) {
-            intakeRecord.setIsTaken(request.getTakenPill());
-            intakeRecordRepository.save(intakeRecord);
+            LocalDate date = LocalDate.parse(request.getDate());
+            System.out.println("[캘린더 기록] 요청 날짜: " + date);
+
+            // 1. UserPill 조회
+            UserPill userPill = userPillRepository.findByUser_UserId(user.getUserId())
+                    .orElseThrow(() -> {
+                        System.out.println("[에러] UserPill 없음 for userId=" + user.getUserId());
+                        return new RuntimeException("유저의 UserPill 정보 없음");
+                    });
+            System.out.println("[캘린더 기록] userPill=" + userPill);
+
+            // 2. 복용 기록
+            IntakeRecord intakeRecord = intakeRecordRepository
+                    .findByUserPillAndIntakeDate(userPill, date)
+                    .orElseThrow(() -> {
+                        System.out.println("[에러] IntakeRecord 없음 for userPill=" + userPill + ", date=" + date);
+                        return new RuntimeException("복용 기록 없음");
+                    });
+            System.out.println("[캘린더 기록] intakeRecord=" + intakeRecord);
+
+            if (request.getTakenPill() != null) {
+                intakeRecord.setIsTaken(request.getTakenPill());
+                intakeRecordRepository.save(intakeRecord);
+                System.out.println("[캘린더 기록] 복용 여부(isTaken) 업데이트: " + request.getTakenPill());
+            }
+
+            // 3. BasicRecord 조회/생성
+            BasicRecord basicRecord = basicRecordRepository
+                    .findByIntakeRecord(intakeRecord)
+                    .orElse(null);
+            System.out.println("[캘린더 기록] basicRecord 조회: " + basicRecord);
+
+            if (basicRecord == null) {
+                basicRecord = BasicRecord.builder()
+                        .user(user)
+                        .intakeRecord(intakeRecord)
+                        .occuredAt(date.atStartOfDay())
+                        .moodEmoji(request.getMoodEmoji())
+                        .build();
+                System.out.println("[캘린더 기록] basicRecord 새로 생성: " + basicRecord);
+            } else {
+                basicRecord.setMoodEmoji(request.getMoodEmoji());
+                System.out.println("[캘린더 기록] basicRecord moodEmoji 업데이트: " + request.getMoodEmoji());
+            }
+            basicRecordRepository.save(basicRecord);
+
+            // 4. 파트너 정보
+            Partner partner = partnerRepository.findByUser_UserId(user.getUserId())
+                    .orElseThrow(() -> {
+                        System.out.println("[에러] Partner 정보 없음 for userId=" + user.getUserId());
+                        return new RuntimeException("파트너 정보 없음");
+                    });
+            Long partnerUserId = partner.getPartnerUserId();
+            User partnerUser = userRepository.findByUserId(partnerUserId);
+            System.out.println("[캘린더 기록] partnerUser=" + partnerUser);
+
+            // 5. RelationRecord 조회/생성
+            RelationRecord relationRecord = relationRecordRepository
+                    .findByUserAndPartnerAndRecordDate(user, partnerUser, date)
+                    .orElse(null);
+            System.out.println("[캘린더 기록] relationRecord 조회: " + relationRecord);
+
+            if (relationRecord == null) {
+                relationRecord = RelationRecord.builder()
+                        .user(user)
+                        .partner(partnerUser)
+                        .recordDate(date)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+                System.out.println("[캘린더 기록] relationRecord 새로 생성: " + relationRecord);
+            }
+            if (request.getHadSex() != null) {
+                relationRecord.setHadSex(request.getHadSex());
+                System.out.println("[캘린더 기록] relationRecord hadSex 업데이트: " + request.getHadSex());
+            }
+            if (request.getUsedCondom() != null) {
+                relationRecord.setHadCondom(request.getUsedCondom());
+                System.out.println("[캘린더 기록] relationRecord hadCondom 업데이트: " + request.getUsedCondom());
+            }
+
+            relationRecordRepository.save(relationRecord);
+            System.out.println("[캘린더 기록] relationRecord 저장 완료");
+
+        } catch (Exception e) {
+            System.out.println("[캘린더 기록][에러] " + e.getMessage());
+            e.printStackTrace();
+            throw e; // (실제로는 커스텀 예외 처리)
         }
-
-        // 2. 복용 기록 기준으로 BasicRecord 조회
-        BasicRecord basicRecord = basicRecordRepository
-                .findByIntakeRecord(intakeRecord)
-                .orElse(null);
-
-        if(basicRecord == null) {
-            basicRecord = BasicRecord.builder()
-                    .user(user)
-                    .intakeRecord(intakeRecord)
-                    .occuredAt(date.atStartOfDay())
-                    .moodEmoji(request.getMoodEmoji())
-                    .build();
-        } else {
-            basicRecord.setMoodEmoji(request.getMoodEmoji());
-        }
-        basicRecordRepository.save(basicRecord);
-
-        // 3. 관계 기록
-        RelationRecord relationRecord = relationRecordRepository
-                .findByUserAndPartnerAndRecordDate(user, partnerUser, date)
-                .orElse(null);
-
-        if(relationRecord == null) {
-            relationRecord = RelationRecord.builder()
-                    .user(user)
-                    .partner(partnerUser)
-                    .recordDate(date)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-        }
-        if(request.getHadSex() != null) relationRecord.setHadSex(request.getHadSex());
-        if(request.getUsedCondom() != null) relationRecord.setHadCondom(request.getUsedCondom());
-
-        relationRecordRepository.save(relationRecord);
-
-
     }
 }
+
