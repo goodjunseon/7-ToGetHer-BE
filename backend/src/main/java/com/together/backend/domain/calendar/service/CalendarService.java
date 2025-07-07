@@ -15,6 +15,7 @@ import com.together.backend.domain.couple.repository.CoupleRepository;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.Gender;
+import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -58,99 +59,114 @@ public class CalendarService {
     @Transactional
     public void saveCalendarRecord(User user, CalendarRecordRequest request) {
         try {
-            System.out.println("[캘린더 기록] user=" + user);
-
             LocalDate date = LocalDate.parse(request.getDate());
-            System.out.println("[캘린더 기록] 요청 날짜: " + date);
+            boolean isFemale = user.getRole() == Role.ROLE_USER;      // USER = 여성(주유저)
+            boolean isMale = user.getRole() == Role.ROLE_PARTNER;     // PARTNER = 남성(파트너)
 
-            // 1. UserPill 조회
-            UserPill userPill = userPillRepository.findByUser_UserId(user.getUserId())
-                    .orElseThrow(() -> {
-                        System.out.println("[에러] UserPill 없음 for userId=" + user.getUserId());
-                        return new RuntimeException("유저의 UserPill 정보 없음");
-                    });
-            System.out.println("[캘린더 기록] userPill=" + userPill);
-
-            // 2. 복용 기록
-            IntakeRecord intakeRecord = intakeRecordRepository
-                    .findByUserPillAndIntakeDate(userPill, date)
-                    .orElseThrow(() -> {
-                        System.out.println("[에러] IntakeRecord 없음 for userPill=" + userPill + ", date=" + date);
-                        return new RuntimeException("복용 기록 없음");
-                    });
-            System.out.println("[캘린더 기록] intakeRecord=" + intakeRecord);
-
-            if (request.getTakenPill() != null) {
-                intakeRecord.setIsTaken(request.getTakenPill());
-                intakeRecordRepository.save(intakeRecord);
-                System.out.println("[캘린더 기록] 복용 여부(isTaken) 업데이트: " + request.getTakenPill());
-            }
-
-            // 3. BasicRecord 조회/생성
-            BasicRecord basicRecord = basicRecordRepository
-                    .findByIntakeRecord(intakeRecord)
-                    .orElse(null);
-            System.out.println("[캘린더 기록] basicRecord 조회: " + basicRecord);
-
-            if (basicRecord == null) {
-                basicRecord = BasicRecord.builder()
-                        .user(user)
-                        .intakeRecord(intakeRecord)
-                        .occuredAt(date.atStartOfDay())
-                        .moodEmoji(request.getMoodEmoji())
-                        .build();
-                System.out.println("[캘린더 기록] basicRecord 새로 생성: " + basicRecord);
+            // 0. 커플 row 조회 (role에 따라 user or partnerUserId로)
+            Couple couple;
+            User partnerUser;
+            if (isFemale) {
+                couple = coupleRepository.findByUser_UserId(user.getUserId())
+                        .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+                partnerUser = userRepository.findByUserId(couple.getPartnerUserId())
+                        .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
+            } else if (isMale) {
+                couple = coupleRepository.findByPartnerUserId(user.getUserId())
+                        .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+                partnerUser = userRepository.findByUserId(couple.getUser().getUserId())
+                        .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
             } else {
-                basicRecord.setMoodEmoji(request.getMoodEmoji());
-                System.out.println("[캘린더 기록] basicRecord moodEmoji 업데이트: " + request.getMoodEmoji());
+                throw new IllegalArgumentException("지원하지 않는 역할입니다.");
             }
-            basicRecordRepository.save(basicRecord);
 
-            // 4. 파트너 정보
-            Couple couple = coupleRepository.findByUser_UserId(user.getUserId())
-                    .orElseThrow(() -> {
-                        System.out.println("[에러] Partner 정보 없음 for userId=" + user.getUserId());
-                        return new RuntimeException("파트너 정보 없음");
-                    });
 
-            Long partnerUserId = couple.getPartnerUserId();
-            Optional<User> partnerUserOpt = userRepository.findByUserId(partnerUserId);
-            User partnerUser = partnerUserOpt.orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
-            System.out.println("[캘린더 기록] partnerUser=" + partnerUser);
+            // 1. 항상 여성=유저, 남성=파트너로 맞추기
+            User female = isFemale ? user : partnerUser;
+            User male = isFemale ? partnerUser : user;
 
-            // 5. RelationRecord 조회/생성
+            // 2. RelationRecord (user: female, partner: male, recordDate)
             RelationRecord relationRecord = relationRecordRepository
-                    .findByUserAndPartnerAndRecordDate(user, partnerUser, date)
+                    .findByUserAndPartnerAndRecordDate(female, male, date)
                     .orElse(null);
-            System.out.println("[캘린더 기록] relationRecord 조회: " + relationRecord);
 
+            boolean isNewRecord = false;
             if (relationRecord == null) {
                 relationRecord = RelationRecord.builder()
-                        .user(user)
-                        .partner(partnerUser)
+                        .user(female)
+                        .partner(male)
                         .recordDate(date)
                         .createdAt(LocalDateTime.now())
+                        .hadSex(request.getHadSex())
+                        .hadCondom(isMale ? request.getUsedCondom() : null)
                         .build();
-                System.out.println("[캘린더 기록] relationRecord 새로 생성: " + relationRecord);
-            }
-            if (request.getHadSex() != null) {
-                relationRecord.setHadSex(request.getHadSex());
-                System.out.println("[캘린더 기록] relationRecord hadSex 업데이트: " + request.getHadSex());
-            }
-            if (request.getUsedCondom() != null) {
-                relationRecord.setHadCondom(request.getUsedCondom());
-                System.out.println("[캘린더 기록] relationRecord hadCondom 업데이트: " + request.getUsedCondom());
+                isNewRecord = true;
             }
 
+            // 3. 역할별 기록 제한 및 저장
+            if (isFemale) {
+                // [불가] 콘돔 사용여부
+                if (request.getUsedCondom() != null) {
+                    throw new IllegalArgumentException("여성은 콘돔 사용여부를 등록할 수 없습니다.");
+                }
+                // [가능] 관계 여부
+                if (!isNewRecord && request.getHadSex() != null) {
+                    relationRecord.setHadSex(request.getHadSex());
+                }
+                // [콘돔] 무조건 null (여성은 입력 불가, 이미 builder에서 처리됨)
+
+                // [가능] 복용 및 감정
+                UserPill userPill = userPillRepository.findByUser_UserId(user.getUserId())
+                        .orElseThrow(() -> new RuntimeException("UserPill 정보 없음"));
+                IntakeRecord intakeRecord = intakeRecordRepository
+                        .findByUserPillAndIntakeDate(userPill, date)
+                        .orElseThrow(() -> new RuntimeException("복용 기록 없음"));
+
+                if (request.getTakenPill() != null) {
+                    intakeRecord.setIsTaken(request.getTakenPill());
+                    intakeRecordRepository.save(intakeRecord);
+                }
+
+                BasicRecord basicRecord = basicRecordRepository.findByIntakeRecord(intakeRecord).orElse(null);
+                if (basicRecord == null) {
+                    basicRecord = BasicRecord.builder()
+                            .user(user)
+                            .intakeRecord(intakeRecord)
+                            .occuredAt(date.atStartOfDay())
+                            .moodEmoji(request.getMoodEmoji())
+                            .build();
+                } else {
+                    if (request.getMoodEmoji() != null)
+                        basicRecord.setMoodEmoji(request.getMoodEmoji());
+                }
+                basicRecordRepository.save(basicRecord);
+
+            } else if (isMale) {
+                // [불가] 감정, 복용 기록
+                if (request.getMoodEmoji() != null || request.getTakenPill() != null) {
+                    throw new IllegalArgumentException("파트너(남성)는 감정 및 복용 기록을 등록할 수 없습니다.");
+                }
+                // [처음 생성] 여성 기록 관련 필드는 builder에서 이미 null로 처리함
+                // [가능] 관계 여부
+                if (!isNewRecord && request.getHadSex() != null) {
+                    relationRecord.setHadSex(request.getHadSex());
+                }
+                // [가능] 콘돔 사용여부
+                if (!isNewRecord && request.getUsedCondom() != null) {
+                    relationRecord.setHadCondom(request.getUsedCondom());
+                }
+            }
+
+            // 4. RelationRecord 저장
             relationRecordRepository.save(relationRecord);
-            System.out.println("[캘린더 기록] relationRecord 저장 완료");
 
         } catch (Exception e) {
             System.out.println("[캘린더 기록][에러] " + e.getMessage());
             e.printStackTrace();
-            throw e; // (실제로는 커스텀 예외 처리)
+            throw e;
         }
     }
+
 
 
     // 캘린더 랜딩 시 로직

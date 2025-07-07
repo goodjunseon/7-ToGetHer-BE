@@ -7,13 +7,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "partner_table")
+@Table(name = "couple_table")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Couple {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "partner_id")
-    private Long partnerId;
+    @Column(name = "couple_id")
+    private Long coupleId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
