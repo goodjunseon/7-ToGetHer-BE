@@ -36,4 +36,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Gender gender;
 }
