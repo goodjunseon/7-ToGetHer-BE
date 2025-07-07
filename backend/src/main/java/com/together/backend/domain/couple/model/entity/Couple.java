@@ -1,4 +1,4 @@
-package com.together.backend.domain.partner.model.entity;
+package com.together.backend.domain.couple.model.entity;
 
 import com.together.backend.domain.user.model.entity.User;
 import jakarta.persistence.*;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "partner_table")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Partner {
+public class Couple {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "partner_id")
@@ -24,7 +24,7 @@ public class Partner {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 15)
-    private PartnerStatus status;
+    private CoupleStatus status;
 
     @Column(name = "invited_at")
     private LocalDateTime invitedAt;

@@ -10,8 +10,8 @@ import com.together.backend.domain.calendar.model.entity.RelationRecord;
 import com.together.backend.domain.calendar.repository.BasicRecordRepository;
 import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
 import com.together.backend.domain.calendar.repository.RelationRecordRepository;
-import com.together.backend.domain.partner.model.entity.Partner;
-import com.together.backend.domain.partner.repository.PartnerRepository;
+import com.together.backend.domain.couple.model.entity.Couple;
+import com.together.backend.domain.couple.repository.CoupleRepository;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.Gender;
@@ -34,7 +34,7 @@ public class CalendarService {
     private final BasicRecordRepository basicRecordRepository;
     private final IntakeRecordRepository intakeRecordRepository;
     private final UserRepository userRepository;
-    private final PartnerRepository partnerRepository;
+    private final CoupleRepository coupleRepository;
     private final UserPillRepository userPillRepository;
 
     @Autowired
@@ -43,14 +43,14 @@ public class CalendarService {
             BasicRecordRepository basicRecordRepository,
             IntakeRecordRepository intakeRecordRepository,
             UserRepository userRepository,
-            PartnerRepository partnerRepository,
+            CoupleRepository coupleRepository,
             UserPillRepository userPillRepository
     ) {
         this.relationRecordRepository = relationRecordRepository;
         this.basicRecordRepository = basicRecordRepository;
         this.intakeRecordRepository = intakeRecordRepository;
         this.userRepository = userRepository;
-        this.partnerRepository = partnerRepository;
+        this.coupleRepository = coupleRepository;
         this.userPillRepository = userPillRepository;
     }
 
@@ -107,13 +107,13 @@ public class CalendarService {
             basicRecordRepository.save(basicRecord);
 
             // 4. 파트너 정보
-            Partner partner = partnerRepository.findByUser_UserId(user.getUserId())
+            Couple couple = coupleRepository.findByUser_UserId(user.getUserId())
                     .orElseThrow(() -> {
                         System.out.println("[에러] Partner 정보 없음 for userId=" + user.getUserId());
                         return new RuntimeException("파트너 정보 없음");
                     });
 
-            Long partnerUserId = partner.getPartnerUserId();
+            Long partnerUserId = couple.getPartnerUserId();
             Optional<User> partnerUserOpt = userRepository.findByUserId(partnerUserId);
             User partnerUser = partnerUserOpt.orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
             System.out.println("[캘린더 기록] partnerUser=" + partnerUser);
@@ -176,9 +176,9 @@ public class CalendarService {
     // 날짜별 상세 조회 로직
     public CalendarDetailResponse getCalendarDetail(User me, LocalDate date) {
         // 1. 파트너 조회 (성별에 따라 분기)
-        Partner partnerEntity = partnerRepository.findByUser_UserId(me.getUserId())
+        Couple coupleEntity = coupleRepository.findByUser_UserId(me.getUserId())
                 .orElseThrow(() -> new RuntimeException("파트너 정보 없음"));
-        User partner = userRepository.findByUserId(partnerEntity.getPartnerUserId())
+        User partner = userRepository.findByUserId(coupleEntity.getPartnerUserId())
                 .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
 
         User female, male;

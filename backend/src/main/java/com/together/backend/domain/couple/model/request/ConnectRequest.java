@@ -1,4 +1,4 @@
-package com.together.backend.domain.partner.model.request;
+package com.together.backend.domain.couple.model.request;
 
 import lombok.Getter;
 
