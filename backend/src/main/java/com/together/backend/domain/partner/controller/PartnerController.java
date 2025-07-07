@@ -1,7 +1,6 @@
-package com.together.backend.domain.partner;
+package com.together.backend.domain.partner.controller;
 
 import com.together.backend.domain.partner.model.request.ConnectRequest;
-import com.together.backend.domain.partner.model.request.PartnerRequest;
 import com.together.backend.domain.partner.model.response.ConnectResponse;
 import com.together.backend.domain.partner.model.response.PartnerResponse;
 import com.together.backend.domain.partner.service.PartnerService;
