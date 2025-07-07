@@ -1,6 +1,7 @@
 package com.together.backend.domain.calendar.service;
 
 import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
+import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.model.entity.BasicRecord;
 import com.together.backend.domain.calendar.model.entity.IntakeRecord;
 import com.together.backend.domain.calendar.model.entity.RelationRecord;
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
@@ -47,6 +51,7 @@ public class CalendarService {
         this.userPillRepository = userPillRepository;
     }
 
+    // 캘린더 기록 등록 로직
     @Transactional
     public void saveCalendarRecord(User user, CalendarRecordRequest request) {
         try {
@@ -142,6 +147,26 @@ public class CalendarService {
             e.printStackTrace();
             throw e; // (실제로는 커스텀 예외 처리)
         }
+    }
+
+
+    // 캘린더 랜딩 시 로직
+    public List<CalendarSummaryResponse> getCalendarSummary(User user, String month) {
+        // month: "2025-07"
+        LocalDate start = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate end = start.plusMonths(1).minusDays(1);
+
+        // DB에서 해당 user + 기간 내의 BasicRecord 전부 조회
+        List<BasicRecord> records = basicRecordRepository
+                .findAllByUserAndOccuredAtBetween(user, start.atStartOfDay(), end.atTime(23, 59, 59));
+
+        return records.stream()
+                .map(record -> CalendarSummaryResponse.builder()
+                        .date(record.getOccuredAt().toLocalDate().toString())
+                        .moodEmoji(record.getMoodEmoji())
+                        .build())
+                .collect(Collectors.toList());
+
     }
 }
 
