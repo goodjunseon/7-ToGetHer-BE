@@ -66,7 +66,6 @@ public class CalendarController {
             @RequestParam("month") String month,
             @AuthenticationPrincipal CustomOAuth2User customUser
     ) {
-        System.out.println("hello");
         if(customUser == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
