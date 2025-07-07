@@ -209,20 +209,31 @@ public class CalendarService {
 
     // 날짜별 상세 조회 로직
     public CalendarDetailResponse getCalendarDetail(User me, LocalDate date) {
-        // 1. 파트너 조회 (성별에 따라 분기)
-        Couple coupleEntity = coupleRepository.findByUser_UserId(me.getUserId())
-                .orElseThrow(() -> new RuntimeException("파트너 정보 없음"));
-        User partner = userRepository.findByUserId(coupleEntity.getPartnerUserId())
-                .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
-
         User female, male;
-        if(me.getGender() == Gender.FEMALE) {
+        // 1. 내 role 기준으로 여성 / 남성 구분
+        if (me.getRole() == Role.ROLE_USER) { // 내가 여성(주유저)일 때
+            // 커플 테이블에서 내 partner_user_id로 남성 조회
+            Couple coupleEntity = coupleRepository.findByUser_UserId(me.getUserId())
+                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+            User partner = userRepository.findByUserId(coupleEntity.getPartnerUserId())
+                    .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
             female = me;
             male = partner;
-        } else {
+        } else if (me.getRole() == Role.ROLE_PARTNER) { // 내가 남성(파트너)일 때
+            // 커플 테이블에서 내 user_id를 partner_user_id로 갖는 커플 row를 찾고, 여성(주유저) 조회
+            Couple coupleEntity = coupleRepository.findByPartnerUserId(me.getUserId())
+                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+            User partner = coupleEntity.getUser();
+            if (partner == null)
+                throw new RuntimeException("커플 row의 user_id가 null입니다.");
             female = partner;
             male = me;
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 role입니다.");
         }
+
+
+
 
         // 2. 복용 기록(항상 여자 user_id로 조회!)
         Optional<UserPill> userPillOpt = userPillRepository.findByUser_UserId(female.getUserId());
@@ -241,6 +252,7 @@ public class CalendarService {
                 .findFirst()
                 .map(BasicRecord::getMoodEmoji)
                 .orElse(null);
+
         // 4. 관계 기록 (항상 여자/남자 id 조합으로 조회)
         Optional<RelationRecord> relationOpt
                 = relationRecordRepository.findByUserAndPartnerAndRecordDate(female, male, date);
