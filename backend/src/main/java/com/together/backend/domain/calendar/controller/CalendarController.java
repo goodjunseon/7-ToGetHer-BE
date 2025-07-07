@@ -2,6 +2,7 @@ package com.together.backend.domain.calendar.controller;
 
 import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
 import com.together.backend.domain.calendar.dto.CalendarRecordResponse;
+import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.service.CalendarService;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DateTimeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,40 @@ public class CalendarController {
         try {
             calendarService.saveCalendarRecord(user, request);
             return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, null));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<BaseResponse<List<CalendarSummaryResponse>>> getCalendarSummary(
+            @RequestParam("month") String month,
+            @AuthenticationPrincipal CustomOAuth2User customUser
+    ) {
+        System.out.println("hello");
+        if(customUser == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED));
+        }
+
+        // DB의 User 엔티티 조회
+        Optional<User> userOpt = userRepository.findByEmail(customUser.getEmail());
+        if(userOpt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED));
+        }
+        User user = userOpt.get();
+
+        try {
+            List<CalendarSummaryResponse> result = calendarService.getCalendarSummary(user, month);
+            return ResponseEntity.ok(new BaseResponse<>(result));
+        } catch (DateTimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, null));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
