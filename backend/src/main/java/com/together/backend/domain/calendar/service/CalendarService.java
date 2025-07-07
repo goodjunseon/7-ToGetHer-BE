@@ -1,5 +1,6 @@
 package com.together.backend.domain.calendar.service;
 
+import com.together.backend.domain.calendar.dto.CalendarDetailResponse;
 import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
 import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.model.entity.BasicRecord;
@@ -167,6 +168,22 @@ public class CalendarService {
                         .build())
                 .collect(Collectors.toList());
 
+    }
+
+
+    // 날짜별 상세 조회 로직
+    public CalendarDetailResponse getCalendarDetail(User user, LocalDate date) {
+        // 1. 복용 기록 조회(IntakeRecord)
+        Optional<UserPill> userPillOpt = userPillRepository.findByUser_UserId(user.getUserId());
+        Boolean takenPill = null;
+        if(userPillOpt.isPresent()) {
+            Optional<IntakeRecord> intakeOpt =
+                    intakeRecordRepository.findByUserPillAndIntakeDate(userPillOpt.get(), date);
+            takenPill = intakeOpt.map(IntakeRecord::getIsTaken).orElse(null);
+        }
+
+        // 2. 관계 기록 조회 (RelationRecord)
+        // 파트너 정보 조회
     }
 }
 
