@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -170,14 +171,29 @@ public class CalendarService {
 
 
     // 캘린더 랜딩 시 로직
-    public List<CalendarSummaryResponse> getCalendarSummary(User user, String month) {
+    @Transactional
+    public List<CalendarSummaryResponse> getCalendarSummary(User me, String month) {
         // month: "2025-07"
         LocalDate start = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalDate end = start.plusMonths(1).minusDays(1);
 
-        // DB에서 해당 user + 기간 내의 BasicRecord 전부 조회
+        User female;
+
+        if (me.getRole() == Role.ROLE_USER) {
+            female = me;
+        } else if (me.getRole() == Role.ROLE_PARTNER) {
+            Couple coupleEntity = coupleRepository.findByPartnerUserId(me.getUserId())
+                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+            if (coupleEntity.getUser() == null) {
+                throw new RuntimeException("커플 row의 user_id가 null입니다.");
+            }
+            female = coupleEntity.getUser();
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 role입니다.");
+        }
+
         List<BasicRecord> records = basicRecordRepository
-                .findAllByUserAndOccuredAtBetween(user, start.atStartOfDay(), end.atTime(23, 59, 59));
+                .findAllByUserAndOccuredAtBetween(female, start.atStartOfDay(), end.atTime(23, 59, 59));
 
         return records.stream()
                 .map(record -> CalendarSummaryResponse.builder()
@@ -185,8 +201,10 @@ public class CalendarService {
                         .moodEmoji(record.getMoodEmoji())
                         .build())
                 .collect(Collectors.toList());
-
     }
+
+
+
 
 
     // 날짜별 상세 조회 로직
