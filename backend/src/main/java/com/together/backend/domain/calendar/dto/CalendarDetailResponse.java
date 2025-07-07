@@ -8,6 +8,6 @@ public class CalendarDetailResponse {
     private String date;
     private Boolean takenPill;
     private CondomUsage usedCondom;
-    private Boolean hasSex;
+    private Boolean hadSex;
     private String moodEmoji;
 }

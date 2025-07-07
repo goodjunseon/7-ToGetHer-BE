@@ -4,6 +4,7 @@ import com.together.backend.domain.calendar.dto.CalendarDetailResponse;
 import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
 import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.model.entity.BasicRecord;
+import com.together.backend.domain.calendar.model.entity.CondomUsage;
 import com.together.backend.domain.calendar.model.entity.IntakeRecord;
 import com.together.backend.domain.calendar.model.entity.RelationRecord;
 import com.together.backend.domain.calendar.repository.BasicRecordRepository;
@@ -13,6 +14,7 @@ import com.together.backend.domain.partner.model.entity.Partner;
 import com.together.backend.domain.partner.repository.PartnerRepository;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
+import com.together.backend.domain.user.model.entity.Gender;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -172,18 +174,52 @@ public class CalendarService {
 
 
     // 날짜별 상세 조회 로직
-    public CalendarDetailResponse getCalendarDetail(User user, LocalDate date) {
-        // 1. 복용 기록 조회(IntakeRecord)
-        Optional<UserPill> userPillOpt = userPillRepository.findByUser_UserId(user.getUserId());
+    public CalendarDetailResponse getCalendarDetail(User me, LocalDate date) {
+        // 1. 파트너 조회 (성별에 따라 분기)
+        Partner partnerEntity = partnerRepository.findByUser_UserId(me.getUserId())
+                .orElseThrow(() -> new RuntimeException("파트너 정보 없음"));
+        User partner = userRepository.findByUserId(partnerEntity.getPartnerUserId())
+                .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
+
+        User female, male;
+        if(me.getGender() == Gender.FEMALE) {
+            female = me;
+            male = partner;
+        } else {
+            female = partner;
+            male = me;
+        }
+
+        // 2. 복용 기록(항상 여자 user_id로 조회!)
+        Optional<UserPill> userPillOpt = userPillRepository.findByUser_UserId(female.getUserId());
         Boolean takenPill = null;
-        if(userPillOpt.isPresent()) {
+
+        if(userPillOpt.isPresent())  {
             Optional<IntakeRecord> intakeOpt =
                     intakeRecordRepository.findByUserPillAndIntakeDate(userPillOpt.get(), date);
             takenPill = intakeOpt.map(IntakeRecord::getIsTaken).orElse(null);
         }
 
-        // 2. 관계 기록 조회 (RelationRecord)
-        // 파트너 정보 조회
+        // 3. 감정 기록(항상 여자 user_id로 조회!)
+        String moodEmoji = basicRecordRepository
+                .findAllByUserAndOccuredAtBetween(female, date.atStartOfDay(), date.atTime(23, 59, 59))
+                .stream()
+                .findFirst()
+                .map(BasicRecord::getMoodEmoji)
+                .orElse(null);
+        // 4. 관계 기록 (항상 여자/남자 id 조합으로 조회)
+        Optional<RelationRecord> relationOpt
+                = relationRecordRepository.findByUserAndPartnerAndRecordDate(female, male, date);
+        Boolean hadSex = relationOpt.map(RelationRecord::getHadSex).orElse(null);
+        CondomUsage usedCondom = relationOpt.map(RelationRecord::getHadCondom).orElse(null);
+
+        return CalendarDetailResponse.builder()
+                .date(date.toString())
+                .takenPill(takenPill)
+                .hadSex(hadSex)
+                .usedCondom(usedCondom)
+                .moodEmoji(moodEmoji)
+                .build();
     }
 }
 
