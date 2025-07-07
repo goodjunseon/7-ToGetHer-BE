@@ -1,5 +1,6 @@
 package com.together.backend.domain.user.service;
 
+import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.service.JwtTokenService;
 import com.together.backend.domain.user.model.entity.User;
@@ -45,4 +46,16 @@ public class UserService {
         log.info("jwtTokenService.refreshTokenDelete() 호출");
     }
 
+    public void updateUserRole(String email, Role role) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            log.warn("사용자를 찾을 수 없습니다: {}", email);
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+
+        User user = optionalUser.get();
+        user.setRole(role);
+        userRepository.save(user);
+        log.info("사용자 역할 업데이트 완료: {}, 새로운 역할: {}", email, role);
+    }
 }

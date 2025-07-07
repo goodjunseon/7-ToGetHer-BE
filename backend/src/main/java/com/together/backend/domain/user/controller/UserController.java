@@ -1,5 +1,8 @@
 package com.together.backend.domain.user.controller;
 
+import com.together.backend.domain.user.model.entity.Role;
+import com.together.backend.domain.user.model.request.UserRequest;
+import com.together.backend.domain.user.model.response.UserResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.jwt.util.CookieUtil;
@@ -57,6 +60,19 @@ public class UserController {
 
 
         return new BaseResponse<>(BaseResponseStatus.OK);
+    }
+
+    @PostMapping("/role")
+    public BaseResponse<UserResponse> updateUserRole(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @RequestBody UserRequest userRequest) {
+        String email = oAuth2User.getEmail();
+        log.info("updateUserRole() 호출됨, 사용자 이메일: {}", email);
+        try {
+            userService.updateUserRole(email, Role.valueOf(userRequest.getRole()));
+        } catch (Exception e) {
+            log.error("사용자 역할 업데이트 실패: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
+        }
+        return new BaseResponse<UserResponse>(BaseResponseStatus.OK, new UserResponse(email, userRequest.getRole()));
     }
 
 
