@@ -1,6 +1,6 @@
 package com.together.backend.global.security.oauth2.dto;
 
-import com.together.backend.user.model.entity.Role;
+import com.together.backend.domain.user.model.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

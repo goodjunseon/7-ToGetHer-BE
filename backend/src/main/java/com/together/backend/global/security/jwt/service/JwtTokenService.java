@@ -1,8 +1,7 @@
 package com.together.backend.global.security.jwt.service;
 
 import com.together.backend.global.security.jwt.util.JWTUtil;
-import com.together.backend.user.model.entity.User;
-import com.together.backend.user.repository.UserRepository;
+import com.together.backend.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

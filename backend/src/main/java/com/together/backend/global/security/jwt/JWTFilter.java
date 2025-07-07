@@ -6,7 +6,7 @@ import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
 import com.together.backend.global.security.oauth2.dto.UserDTO;
-import com.together.backend.user.model.entity.Role;
+import com.together.backend.domain.user.model.entity.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
