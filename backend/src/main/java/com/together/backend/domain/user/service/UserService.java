@@ -21,19 +21,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void deleteUser(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        log.info("이메일: {}", email);
+        log.info("회원 탈퇴 요청 이메일 {}", email);
 
+        User user = userRepository.findByEmail(email).orElseThrow( () -> {
+            log.warn("회원 탈퇴 실패 - 사용자를 찾을 수 없음: {} ", email);
+            return new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다.");
+        });
 
-        if (optionalUser.isEmpty()) {
-            log.warn("사용자를 찾을 수 없습니다: {}", email);
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
-        }
-
-        User user = optionalUser.get();
         userRepository.delete(user);
-        log.info("userRepository.delete(user) 호출: {}", user.getEmail());
-
+        log.info("회원 탈퇴 완료: {}", user.getEmail());
     }
 
     public void logout(String accessToken) {

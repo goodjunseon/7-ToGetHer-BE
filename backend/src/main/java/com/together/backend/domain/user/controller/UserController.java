@@ -56,14 +56,24 @@ public class UserController {
 
     @DeleteMapping("/")
     public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomOAuth2User oAuth2User) throws Exception {
+        if (oAuth2User == null) {
+            log.warn("회원 탈퇴 요청: 인증되지 않은 사용자");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+        }
 
-        log.info("deleteUser() 호출됨");
         String email = oAuth2User.getEmail();
-        System.out.println("소셜 아이디: " + email);
-        userService.deleteUser(email);
-
-
-        return new BaseResponse<>(BaseResponseStatus.OK);
+        log.info("회원 탈퇴 요청: 이메일 = {}", email);
+        try {
+            userService.deleteUser(email);
+            log.info("회원 탈퇴 성공: {}", email);
+            return new BaseResponse<>(BaseResponseStatus.OK, "회원 탈퇴가 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            log.warn("회원 탈퇴 실패: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            log.error("회원 탈퇴 처리 중 예외 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, "회원 탈퇴 중 오류가 발생했습니다.");
+        }
     }
 
     @PostMapping("/role")
