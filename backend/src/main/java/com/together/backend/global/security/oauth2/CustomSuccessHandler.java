@@ -1,5 +1,6 @@
 package com.together.backend.global.security.oauth2;
 
+import com.together.backend.domain.user.repository.UserRepository;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.jwt.service.JwtTokenService;
@@ -28,6 +29,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JWTUtil jwtUtil;
     private final JwtTokenService jwtTokenService;
 
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("CustomSuccessHandler: onAuthenticationSuccess 호출됨");
@@ -35,14 +37,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
+
         String email = customUserDetails.getEmail();
+        Long userId = customUserDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = "ROLE_USER"; // 기본값으로 ROLE_USER 설정
 
-        String accessToken = jwtUtil.createToken(email, role);
+
+        String accessToken = jwtUtil.createToken(email,userId, role);
         String refreshToken = jwtUtil.createRefreshToken(email);
 
         CookieUtil.createCookie(response,"accessToken", accessToken);
