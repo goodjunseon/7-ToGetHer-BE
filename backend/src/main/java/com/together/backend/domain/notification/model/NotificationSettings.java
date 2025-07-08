@@ -32,4 +32,8 @@ public class NotificationSettings {
 
     private LocalTime notificationTime; // 알림 시간 (복용/감정)
 
+    @Column(name = "days_before")
+    private Integer daysBefore; // null 허용, PILL_PURCHASE만 사용
+
+
 }
