@@ -52,7 +52,7 @@ public class NotificationSettingsService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
-                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+                .orElse(null);
 
         if (setting == null) {
             // INSERT
