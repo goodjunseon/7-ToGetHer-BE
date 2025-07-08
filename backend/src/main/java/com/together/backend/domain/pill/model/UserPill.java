@@ -26,7 +26,7 @@ public class UserPill extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "intake_info_id", nullable = false)
     private IntakeInfo intakeInfo;
 
