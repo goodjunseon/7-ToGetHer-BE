@@ -38,15 +38,19 @@ public class UserController {
 
         // AccessToken이 없으면 에러 응답
         if (accessToken == null) {
-            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+            log.warn("로그아웃 요청: accessToken 없음");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, "accessToken이 존재하지 않습니다.");
         }
 
-        userService.logout(accessToken);
-
-        Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
-        response.addCookie(cookie);
-
-        return new BaseResponse<>(BaseResponseStatus.OK);
+        try {
+            userService.logout(accessToken);
+            Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
+            response.addCookie(cookie);
+            return new BaseResponse<>(BaseResponseStatus.OK);
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
