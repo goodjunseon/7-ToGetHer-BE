@@ -105,7 +105,7 @@ public class NotificationSettingsController {
 
     // 알림 설정 단건 조회
     @GetMapping("/{type}")
-    public BaseResponse<NotificationTimeResponse> getNotificationSetting(
+    public BaseResponse<Object> getNotificationSetting(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
             @PathVariable("type") String typeStr
     ) {
@@ -115,7 +115,7 @@ public class NotificationSettingsController {
         String email = oAuth2User.getEmail();
         try {
             NotificationType type = NotificationType.fromApiValue(typeStr);
-            NotificationTimeResponse data = notificationSettingsService.getNotificationSetting(email, type);
+            Object data = notificationSettingsService.getNotificationSetting(email, type);
             return new BaseResponse<>(BaseResponseStatus.OK, data);
         } catch (Exception e) {
             log.error("알림 설정 조회 오류", e);

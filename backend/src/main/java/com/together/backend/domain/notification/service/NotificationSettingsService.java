@@ -81,12 +81,23 @@ public class NotificationSettingsService {
 
         if (setting == null) {
             // INSERT
-            setting = NotificationSettings.builder()
+            NotificationSettings.NotificationSettingsBuilder builder = NotificationSettings.builder()
                     .user(user)
                     .type(type)
-                    .isEnabled(enabled)
-                    .notificationTime(LocalTime.of(9, 0))
-                    .build();
+                    .isEnabled(enabled);
+
+            // 타입별로 분기하여 기본값 설정
+            if (type == NotificationType.PILL_PURCHASE) {
+                builder.daysBefore(5)         // 기본값(예: 5일 전)
+                        .notificationTime(null);
+            } else if (type == NotificationType.PILL_INTAKE) {
+                builder.notificationTime(LocalTime.of(9, 0))
+                        .daysBefore(null);
+            } else {
+                builder.notificationTime(null)
+                        .daysBefore(null);
+            }
+            setting = builder.build();
         } else {
             // UPDATE
             setting.setEnabled(enabled);
@@ -97,16 +108,25 @@ public class NotificationSettingsService {
     }
 
     // 시간 +
-    public NotificationTimeResponse getNotificationSetting(String email, NotificationType type) {
+    public Object getNotificationSetting(String email, NotificationType type) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
-        return new NotificationTimeResponse(
-                setting.isEnabled(),
-                setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
-        );
+        if (type == NotificationType.PILL_PURCHASE) {
+            return new NotificationDayResponse(
+                    setting.isEnabled(),
+                    setting.getDaysBefore()
+            );
+        } else if (type == NotificationType.PILL_INTAKE) {
+            return new NotificationTimeResponse(
+                    setting.isEnabled(),
+                    setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
+            );
+        }
+        // 기타 타입 처리...
+        return null;
     }
 }
