@@ -1,8 +1,10 @@
 package com.together.backend.domain.notification.controller;
 
 import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.model.notification.request.NotificationDayRequest;
 import com.together.backend.domain.notification.model.notification.request.NotificationEnabledRequest;
 import com.together.backend.domain.notification.model.notification.request.NotificationTimeRequest;
+import com.together.backend.domain.notification.model.notification.response.NotificationDayResponse;
 import com.together.backend.domain.notification.model.notification.response.NotificationEnabledResponse;
 import com.together.backend.domain.notification.model.notification.response.NotificationTimeResponse;
 import com.together.backend.global.common.BaseResponse;
@@ -79,6 +81,28 @@ public class NotificationSettingsController {
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/{type}/days")
+    public BaseResponse<NotificationDayResponse> upsertNotificationDay(
+            @AuthenticationPrincipal CustomOAuth2User oAuth2User,
+            @PathVariable("type") String typeStr,
+            @RequestBody NotificationDayRequest request
+    ) {
+        if (oAuth2User == null) {
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
+        }
+        String email = oAuth2User.getEmail();
+        NotificationType type = NotificationType.fromApiValue(typeStr);
+
+        // pill-purchase만 지원 (FE에서 걸러주면 더 좋음)
+        if (type != NotificationType.PILL_PURCHASE) {
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, null);
+        }
+
+        NotificationDayResponse data = notificationSettingsService.upsertNotificationDay(email, type, request.getDaysBefore());
+        return new BaseResponse<>(BaseResponseStatus.OK, data);
+    }
+
     // 알림 설정 단건 조회
     @GetMapping("/{type}")
     public BaseResponse<NotificationTimeResponse> getNotificationSetting(
