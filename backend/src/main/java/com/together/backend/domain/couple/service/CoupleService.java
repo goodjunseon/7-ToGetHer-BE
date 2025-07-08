@@ -35,8 +35,8 @@ public class CoupleService {
 
     public ConnectResponse connectPartner(String userEmail, String partnerEmail) {
         // 사용자 & 파트너 조회
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userEmail));
-        Long partnerUserId = userRepository.findByEmail(partnerEmail).orElseThrow(() -> new RuntimeException("파트너를 찾을 수 없습니다: " + partnerEmail)).getUserId();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userEmail));
+        Long partnerUserId = userRepository.findByEmail(partnerEmail).orElseThrow(() -> new IllegalArgumentException("파트너를 찾을 수 없습니다: " + partnerEmail)).getUserId();
 
         // Sharing 상태 확인
         Sharing sharing = sharingRepository.findByUser(user).orElseThrow(() -> new IllegalStateException("공유 정보가 존재하지 않습니다."));

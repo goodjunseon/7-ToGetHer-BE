@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ConfirmRequest {
     @NotNull
-    private Long sharingUserId; // 초대한 사용자 Id
     private String userEmail;
 }
