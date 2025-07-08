@@ -42,14 +42,16 @@ public class CoupleController {
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
 
-        String email = oAuth2User.getEmail();
-        log.info("파트너 연결 요청: 이메일 = {}, 파트너 이메일 = {}", email, request.getPartnerEmail());
+        String partnerEmail = oAuth2User.getEmail();
+        String userEmail = request.getUserEmail();
+        log.info("파트너 연결 요청: 사용자 이메일 = {}, 파트너 이메일 = {}", userEmail, partnerEmail);
 
-
-        // 파트너 수락 안했을 때 예외처리 해야함
         try {
-            ConnectResponse response = coupleService.connectPartner(email, request.getPartnerEmail());
+            ConnectResponse response = coupleService.connectPartner(userEmail, partnerEmail);
             return new BaseResponse<>(BaseResponseStatus.OK, response);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 값 요청", e);
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
         } catch (IllegalStateException e) {
             log.warn("잘못된 연결 요청", e);
             return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);

@@ -45,7 +45,7 @@ public class SharingController {
     @PostMapping("/confirm")
     public BaseResponse<ConfirmResponse> confirmInvitaion(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @Valid @RequestBody ConfirmRequest request) {
         if (oAuth2User == null) {
-            log.warn("인증되지 않은 사용자 요청: {}", request);
+            log.warn("인증되지 않은 사용자 요청: {}", oAuth2User);
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
         log.info("@@@@@@@@@@@@@ {} @@@@@@@@@@@@@@", oAuth2User.getUserId());
@@ -62,7 +62,7 @@ public class SharingController {
             return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
         } catch (IllegalStateException e) {
             log.warn("상태 오류: {}", e.getMessage());
-            return new BaseResponse<>(BaseResponseStatus.CONFLICT);
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("알 수 없는 서버 오류 발생", e);
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
