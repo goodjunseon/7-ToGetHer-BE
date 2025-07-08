@@ -107,7 +107,7 @@ public class NotificationSettingsService {
         return new NotificationEnabledResponse(setting.isEnabled());
     }
 
-    // 시간 +
+    // 조회
     public Object getNotificationSetting(String email, NotificationType type) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -115,18 +115,30 @@ public class NotificationSettingsService {
         NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
-        if (type == NotificationType.PILL_PURCHASE) {
-            return new NotificationDayResponse(
-                    setting.isEnabled(),
-                    setting.getDaysBefore()
-            );
-        } else if (type == NotificationType.PILL_INTAKE) {
-            return new NotificationTimeResponse(
-                    setting.isEnabled(),
-                    setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
-            );
+        switch (type) {
+            case PILL_PURCHASE:
+                // 약 구매 알림 (며칠 전)
+                return new NotificationDayResponse(
+                        setting.isEnabled(),
+                        setting.getDaysBefore()
+                );
+            case PILL_INTAKE:
+                // 복용 시간 알림 (시:분)
+                return new NotificationTimeResponse(
+                        setting.isEnabled(),
+                        setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
+                );
+            case EMOTION_UPDATE:
+                // 감정 기록 알림 (시간, 활성화)
+                return new NotificationTimeResponse(
+                        setting.isEnabled(),
+                        setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
+                );
+            case PARTNER_REQUEST:
+                // 파트너 요청: 시간 설정 필요 없음, enabled만 응답 (혹은 타입에 맞게 추가)
+                return new NotificationEnabledResponse(setting.isEnabled());
+            default:
+                throw new IllegalArgumentException("지원하지 않는 알림 타입: " + type);
         }
-        // 기타 타입 처리...
-        return null;
     }
 }
