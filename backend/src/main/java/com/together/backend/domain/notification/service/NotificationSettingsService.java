@@ -2,6 +2,7 @@ package com.together.backend.domain.notification.service;
 
 import com.together.backend.domain.notification.model.NotificationSettings;
 import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.model.notification.response.NotificationDayResponse;
 import com.together.backend.domain.notification.model.notification.response.NotificationEnabledResponse;
 import com.together.backend.domain.notification.model.notification.response.NotificationTimeResponse;
 import com.together.backend.domain.notification.repository.NotificationSettingsRepository;
@@ -45,6 +46,30 @@ public class NotificationSettingsService {
 
         return new NotificationTimeResponse(setting.isEnabled(), setting.getNotificationTime().toString());
     }
+
+    // 알림 타입이 pill-purchase일 때
+    public NotificationDayResponse upsertNotificationDay(String email, NotificationType type, Integer daysBefore) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
+                .orElse(null);
+
+        if (setting == null) {
+            setting = NotificationSettings.builder()
+                    .user(user)
+                    .type(type)
+                    .isEnabled(true)
+                    .daysBefore(daysBefore) // 며칠 전인지 저장
+                    .build();
+        } else {
+            setting.setDaysBefore(daysBefore);
+        }
+        notificationSettingsRepository.save(setting);
+
+        return new NotificationDayResponse(setting.isEnabled(), setting.getDaysBefore());
+    }
+
 
     // 알림 수신여부 변경
     public NotificationEnabledResponse updateNotificationEnabled(String email, NotificationType type, Boolean enabled) {
