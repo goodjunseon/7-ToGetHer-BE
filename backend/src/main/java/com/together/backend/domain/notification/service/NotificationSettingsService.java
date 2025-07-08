@@ -2,7 +2,7 @@ package com.together.backend.domain.notification.service;
 
 import com.together.backend.domain.notification.model.NotificationSettings;
 import com.together.backend.domain.notification.model.NotificationType;
-import com.together.backend.domain.notification.model.intake.response.IntakeResponse;
+import com.together.backend.domain.notification.model.notification.response.NotificationEnabledResponse;
 import com.together.backend.domain.notification.model.notification.response.NotificationTimeResponse;
 import com.together.backend.domain.notification.repository.NotificationSettingsRepository;
 import com.together.backend.domain.user.model.entity.User;
@@ -14,7 +14,7 @@ import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationIntakeService {
+public class NotificationSettingsService {
     private final NotificationSettingsRepository notificationSettingsRepository;
     private final UserRepository userRepository;
 
@@ -46,4 +46,42 @@ public class NotificationIntakeService {
         return new NotificationTimeResponse(setting.isEnabled(), setting.getNotificationTime().toString());
     }
 
+    // 알림 수신여부 변경
+    public NotificationEnabledResponse updateNotificationEnabled(String email, NotificationType type, Boolean enabled) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
+                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+
+        if (setting == null) {
+            // INSERT
+            setting = NotificationSettings.builder()
+                    .user(user)
+                    .type(type)
+                    .isEnabled(enabled)
+                    .notificationTime(LocalTime.of(9, 0))
+                    .build();
+        } else {
+            // UPDATE
+            setting.setEnabled(enabled);
+        }
+        notificationSettingsRepository.save(setting);
+
+        return new NotificationEnabledResponse(setting.isEnabled());
+    }
+
+    // 시간 +
+    public NotificationTimeResponse getNotificationSetting(String email, NotificationType type) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        NotificationSettings setting = notificationSettingsRepository.findByUserAndType(user, type)
+                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+
+        return new NotificationTimeResponse(
+                setting.isEnabled(),
+                setting.getNotificationTime() != null ? setting.getNotificationTime().toString() : null
+        );
+    }
 }
