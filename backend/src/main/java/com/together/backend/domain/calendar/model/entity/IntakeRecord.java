@@ -14,12 +14,15 @@ public class IntakeRecord {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long intakeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_pill_id")
     private UserPill userPill;
 
     private LocalDate intakeDate;
     private LocalTime intakeTime;
     private Boolean isTaken;
+
+    @Enumerated(EnumType.STRING)
+    private IntakeType type;   // 복용타입 (REAL/FAKE/BREAK)
 }
 
