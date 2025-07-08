@@ -38,28 +38,41 @@ public class UserController {
 
         // AccessToken이 없으면 에러 응답
         if (accessToken == null) {
-            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+            log.warn("로그아웃 요청: accessToken 없음");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, "accessToken이 존재하지 않습니다.");
         }
 
-        userService.logout(accessToken);
-
-        Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
-        response.addCookie(cookie);
-
-        return new BaseResponse<>(BaseResponseStatus.OK);
+        try {
+            userService.logout(accessToken);
+            Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
+            response.addCookie(cookie);
+            return new BaseResponse<>(BaseResponseStatus.OK);
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
 
     @DeleteMapping("/")
     public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomOAuth2User oAuth2User) throws Exception {
+        if (oAuth2User == null) {
+            log.warn("회원 탈퇴 요청: 인증되지 않은 사용자");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+        }
 
-        log.info("deleteUser() 호출됨");
         String email = oAuth2User.getEmail();
-        System.out.println("소셜 아이디: " + email);
-        userService.deleteUser(email);
-
-
-        return new BaseResponse<>(BaseResponseStatus.OK);
+        log.info("회원 탈퇴 요청: 이메일 = {}", email);
+        try {
+            userService.deleteUser(email);
+            log.info("회원 탈퇴 성공: {}", email);
+            return new BaseResponse<>(BaseResponseStatus.OK, "회원 탈퇴가 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            log.warn("회원 탈퇴 실패: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            log.error("회원 탈퇴 처리 중 예외 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, "회원 탈퇴 중 오류가 발생했습니다.");
+        }
     }
 
     @PostMapping("/role")
@@ -75,20 +88,5 @@ public class UserController {
         return new BaseResponse<UserResponse>(BaseResponseStatus.OK, new UserResponse(email, userRequest.getRole()));
     }
 
-
-    @GetMapping("/")
-    public String getUsers() {
-        return "사용자 목록 조회 API";
-    }
-
-    @GetMapping("/{id}")
-    public String getUserById() {
-        return "사용자 정보 조회 API";
-    }
-
-    @PostMapping("/{id}")
-    public String updateUser() {
-        return "사용자 정보 수정 API";
-    }
 
 }
