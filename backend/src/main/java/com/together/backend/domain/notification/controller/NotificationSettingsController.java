@@ -30,7 +30,7 @@ public class NotificationSettingsController {
     @PostMapping("/{type}/time")
     public BaseResponse<NotificationTimeResponse> upsertNotificationTime(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
-            @PathVariable("type") NotificationType type,
+            @PathVariable("type") String typeStr,
             @RequestBody NotificationTimeRequest request
     ) {
         if (oAuth2User == null) {
@@ -43,6 +43,7 @@ public class NotificationSettingsController {
         try {
             LocalTime time = LocalTime.parse(request.getTime());
             log.info("사용자 {}의 피임약 복용 알림 시간 저장: {}", email, time);
+            NotificationType type = NotificationType.fromApiValue(typeStr);
             NotificationTimeResponse data = notificationSettingsService.upsertNotificationTime(email, type, time);
             return new BaseResponse<>(BaseResponseStatus.OK, data);
         } catch (IllegalArgumentException e) {
@@ -60,7 +61,7 @@ public class NotificationSettingsController {
     @PostMapping("/{type}/enabled")
     public BaseResponse<NotificationEnabledResponse> updateNotificationEnabled(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
-            @PathVariable("type") NotificationType type,
+            @PathVariable("type") String typeStr,
             @RequestBody NotificationEnabledRequest request
     ) {
         if (oAuth2User == null) {
@@ -70,6 +71,7 @@ public class NotificationSettingsController {
         log.info("updatePillIntakeTime() 호출됨, 사용자 이메일: {}", email);
 
         try {
+            NotificationType type = NotificationType.fromApiValue(typeStr);
             NotificationEnabledResponse data = notificationSettingsService.updateNotificationEnabled(email, type, request.getEnabled());
             return new BaseResponse<>(BaseResponseStatus.OK, data);
         } catch (Exception e) {
@@ -81,13 +83,14 @@ public class NotificationSettingsController {
     @GetMapping("/{type}")
     public BaseResponse<NotificationTimeResponse> getNotificationSetting(
             @AuthenticationPrincipal CustomOAuth2User oAuth2User,
-            @PathVariable("type") NotificationType type
+            @PathVariable("type") String typeStr
     ) {
         if (oAuth2User == null) {
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
         }
         String email = oAuth2User.getEmail();
         try {
+            NotificationType type = NotificationType.fromApiValue(typeStr);
             NotificationTimeResponse data = notificationSettingsService.getNotificationSetting(email, type);
             return new BaseResponse<>(BaseResponseStatus.OK, data);
         } catch (Exception e) {
