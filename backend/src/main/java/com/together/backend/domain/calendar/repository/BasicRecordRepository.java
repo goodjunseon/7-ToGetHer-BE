@@ -13,5 +13,7 @@ public interface BasicRecordRepository extends JpaRepository<BasicRecord, Long> 
     Optional<BasicRecord> findByUserEmailAndOccuredAt(String email, LocalDateTime occuredAt);
     Optional<BasicRecord> findByIntakeRecord(IntakeRecord intakeRecord);
     List<BasicRecord> findAllByUserAndOccuredAtBetween(User user, LocalDateTime start, LocalDateTime end);
+    // IntakeRecord로 연결된 BasicRecord 모두 삭제 (custom 쿼리, bulk delete)
+    void deleteByIntakeRecord(IntakeRecord intakeRecord);
 
 }

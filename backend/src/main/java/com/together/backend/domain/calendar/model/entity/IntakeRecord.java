@@ -3,6 +3,7 @@ package com.together.backend.domain.calendar.model.entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import com.together.backend.domain.pill.model.UserPill;
 import jakarta.persistence.*;
@@ -24,5 +25,9 @@ public class IntakeRecord {
 
     @Enumerated(EnumType.STRING)
     private IntakeType type;   // 복용타입 (REAL/FAKE/BREAK)
+
+    @OneToMany(mappedBy = "intakeRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BasicRecord> basicRecords;
+
 }
 

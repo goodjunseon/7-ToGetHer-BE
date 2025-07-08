@@ -1,5 +1,9 @@
 package com.together.backend.domain.pill.service;
 
+import com.together.backend.domain.calendar.model.entity.IntakeRecord;
+import com.together.backend.domain.calendar.repository.BasicRecordRepository;
+import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
+import com.together.backend.domain.calendar.service.IntakeRecordInitService;
 import com.together.backend.domain.pill.model.IntakeInfo;
 import com.together.backend.domain.pill.model.IntakeOption;
 import com.together.backend.domain.pill.model.UserPill;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -25,6 +30,9 @@ public class UserPillService {
     private final IntakeInfoRepository intakeInfoRepository;
     private final UserPillRepository userPillRepository;
     private final UserRepository userRepository;
+    private final IntakeRecordRepository intakeRecordRepository;
+    private final BasicRecordRepository basicRecordRepository;
+    private final IntakeRecordInitService intakeRecordInitService;
 
     public IntakeOption saveUserPill(UserPillRequest dto, String email) {
         try {
@@ -51,6 +59,9 @@ public class UserPillService {
 
             userPillRepository.save(userPill);
             log.info("UserPill 저장 성공: {}", userPill);
+
+            // 초기 기록 인스턴스 생성
+            intakeRecordInitService.createInitialRecords(startDate, option, userPill);
 
             return option;
 
@@ -85,6 +96,16 @@ public class UserPillService {
 
         userPillRepository.save(userPill);
         log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
+
+        // 1. 기존 IntakeRecord 모두 삭제
+        intakeRecordRepository.deleteByUserPill(userPill);
+
+        // 2. 새로운 IntakeRecord 생성
+        intakeRecordInitService.createInitialRecords(
+                userPill.getStartDate(),
+                newOption,
+                userPill
+        );
         return newOption;
     }
 }
