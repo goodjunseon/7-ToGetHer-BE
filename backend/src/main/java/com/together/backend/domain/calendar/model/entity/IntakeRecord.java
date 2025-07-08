@@ -19,7 +19,7 @@ public class IntakeRecord {
     private UserPill userPill;
 
     private LocalDate intakeDate;
-    private LocalTime intakeTime;
+//    private LocalTime intakeTime;
     private Boolean isTaken;
 
     @Enumerated(EnumType.STRING)

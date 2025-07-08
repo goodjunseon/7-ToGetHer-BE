@@ -17,7 +17,7 @@ public class IntakeRecordInitService {
     private final IntakeRecordRepository intakeRecordRepository;
 
     // 복용 시작일, 복용 옵션, 복용 시간, userPill을 입력 받아 초기 복용기록 생성
-    public void createInitialRecords(LocalDate startDate, IntakeOption option, LocalTime intakeTime, UserPill userPill) {
+    public void createInitialRecords(LocalDate startDate, IntakeOption option,  UserPill userPill) {
 //        int totalDays = option.getRealDays() + option.getFakeDays() + option.getBreakDays();
         int totalDays = option.getRealDays() + option.getFakeDays();
 
@@ -37,7 +37,6 @@ public class IntakeRecordInitService {
             IntakeRecord record = IntakeRecord.builder()
                     .userPill(userPill)
                     .intakeDate(date)
-                    .intakeTime(intakeTime)
                     .isTaken(false) // 초기값
                     .type(type)
                     .build();
