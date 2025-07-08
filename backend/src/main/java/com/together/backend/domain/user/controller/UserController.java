@@ -53,7 +53,6 @@ public class UserController {
         }
     }
 
-
     @DeleteMapping("/")
     public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomOAuth2User oAuth2User) throws Exception {
         if (oAuth2User == null) {
@@ -89,20 +88,5 @@ public class UserController {
         return new BaseResponse<UserResponse>(BaseResponseStatus.OK, new UserResponse(email, userRequest.getRole()));
     }
 
-
-    @GetMapping("/")
-    public String getUsers() {
-        return "사용자 목록 조회 API";
-    }
-
-    @GetMapping("/{id}")
-    public String getUserById() {
-        return "사용자 정보 조회 API";
-    }
-
-    @PostMapping("/{id}")
-    public String updateUser() {
-        return "사용자 정보 수정 API";
-    }
 
 }
