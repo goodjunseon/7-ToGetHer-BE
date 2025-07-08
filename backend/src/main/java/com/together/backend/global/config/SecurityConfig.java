@@ -56,7 +56,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth-> auth
 //                                .requestMatchers("/**").permitAll() // 개발 환경에서 모든 요청 허용
-                        .requestMatchers ("/", "/oauth2/**", "/api/user/login/kakao").permitAll()
+                        .requestMatchers ("/", "/oauth2/**", "/api/user/login/kakao","/api/auth/test/**").permitAll()
                         .anyRequest().authenticated() // 인증이 필요할 땐 자동으로 oauth2Login() 실행
                 );
 

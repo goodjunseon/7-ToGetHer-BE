@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "couple_table")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Couple {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "couple_id")

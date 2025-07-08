@@ -66,6 +66,7 @@ public class JwtTokenService {
 
         String email = jwtUtil.getUsername(refreshToken);
         String stored = redisTemplate.opsForValue().get("refreshToken:" + email);
+        Long userId = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")).getUserId();
 
         if (stored == null || !stored.equals(refreshToken)) {
             throw new RuntimeException("Refresh Token 불일치");
@@ -73,7 +74,6 @@ public class JwtTokenService {
 
         // 3. 새로운 Access Token 생성
         String role = jwtUtil.getRole(refreshToken);
-        return jwtUtil.createToken(email, role);
+        return jwtUtil.createToken(email,userId, role);
     }
-
 }

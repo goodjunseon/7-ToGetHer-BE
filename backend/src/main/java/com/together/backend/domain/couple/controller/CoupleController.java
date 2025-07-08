@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user/partner")
+@RequestMapping("/api/user/couple")
 public class CoupleController {
 
     private final CoupleService coupleService;
@@ -45,9 +45,19 @@ public class CoupleController {
         String email = oAuth2User.getEmail();
         log.info("파트너 연결 요청: 이메일 = {}, 파트너 이메일 = {}", email, request.getPartnerEmail());
 
-        ConnectResponse response = coupleService.connectPartner(email, request.getPartnerEmail());
 
-        return new BaseResponse<>(BaseResponseStatus.OK, response);
+        // 파트너 수락 안했을 때 예외처리 해야함
+        try {
+            ConnectResponse response = coupleService.connectPartner(email, request.getPartnerEmail());
+            return new BaseResponse<>(BaseResponseStatus.OK, response);
+        } catch (IllegalStateException e) {
+            log.warn("잘못된 연결 요청", e);
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.warn("알 수 없는 오류 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 }

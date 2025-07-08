@@ -10,6 +10,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class UserDTO {
+    private Long userId;
     private String socialId; // "kakao_1234567890"
     private String name; // "홍길동"
     private String email; // "pzs2001926@gmail.com"

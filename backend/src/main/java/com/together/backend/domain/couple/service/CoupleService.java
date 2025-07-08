@@ -5,6 +5,8 @@ import com.together.backend.domain.couple.model.entity.CoupleStatus;
 import com.together.backend.domain.couple.model.response.ConnectResponse;
 import com.together.backend.domain.couple.model.response.CoupleResponse;
 import com.together.backend.domain.couple.repository.CoupleRepository;
+import com.together.backend.domain.sharing.model.Sharing;
+import com.together.backend.domain.sharing.repository.SharingRepository;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class CoupleService {
 
     private final CoupleRepository coupleRepository;
     private final UserRepository userRepository;
+    private final SharingRepository sharingRepository;
 
     // 파트너 정보를 가져오는 메소드
     public CoupleResponse getPartnerInfo(String email) {
@@ -31,9 +34,27 @@ public class CoupleService {
     }
 
     public ConnectResponse connectPartner(String userEmail, String partnerEmail) {
+        // 사용자 & 파트너 조회
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userEmail));
         Long partnerUserId = userRepository.findByEmail(partnerEmail).orElseThrow(() -> new RuntimeException("파트너를 찾을 수 없습니다: " + partnerEmail)).getUserId();
 
+        // Sharing 상태 확인
+        Sharing sharing = sharingRepository.findByUser(user).orElseThrow(() -> new IllegalStateException("공유 정보가 존재하지 않습니다."));
+
+        if (!sharing.isShared()) {
+            throw new IllegalStateException("아직 초대가 공유되지 않았습니다.");
+        }
+        if (!sharing.isConfirmed()) {
+            throw new IllegalStateException("아직 파트너가 초대를 수락하지 않았습니다.");
+        }
+
+        // Couple 중복 여부 확인 -> 이부분은 isConfirmed가 true이면 무조건 true이지 않을까? 2차 검증 불필요 한가?
+        boolean coupleExists = coupleRepository.existsByUserOrPartnerUserId(user, partnerUserId);
+        if (coupleExists) {
+            throw new IllegalStateException("이미 커플로 등록된 사용자입니다.");
+        }
+
+        // Couple 생성
         Couple couple = Couple.builder()
                 .user(user)
                 .partnerUserId(partnerUserId)

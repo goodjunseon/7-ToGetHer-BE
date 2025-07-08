@@ -22,6 +22,7 @@ public enum BaseResponseStatus {
     BAD_REQUEST(false, 400, "잘못된 요청입니다."), // HTTP 400 Bad Request 응답
     UNAUTHORIZED(false, 401, "인증되지 않은 사용자입니다."), // HTTP 401 Unauthorized 응답
     FORBIDDEN(false, 403, "접근이 금지된 사용자입니다."), // HTTP 403 Forbidden 응답
+    CONFLICT(false,409 , "이미 수락됨"),
 
     // 500번대
     INTERNAL_SERVER_ERROR(false, 500, "서버 오류가 발생했습니다."), // HTTP 500 Internal Server Error 응답
