@@ -23,13 +23,12 @@ public class Couple {
     @Column(name = "partner_user_id")
     private Long partnerUserId; // 상대방 user_id (User 테이블 PK, FK nullable)
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 15)
-    private CoupleStatus status;
+    @Column(name = "is_connected")
+    private Boolean isConnected;
 
     @Column(name = "invited_at")
     private LocalDateTime invitedAt;
 
     @Column(name = "connected_at")
-    private LocalDateTime connectedAt;
+    private LocalDateTime connectedAt; // 연결된 날짜
 }

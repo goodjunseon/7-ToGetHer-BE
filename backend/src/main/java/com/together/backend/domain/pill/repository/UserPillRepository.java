@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface UserPillRepository extends JpaRepository<UserPill, Long> {
     Optional<UserPill> findByUser(User user);
     Optional<UserPill> findByUser_UserId(Long userId);
+    Optional<UserPill> findTopByUserOrderByStartDateDesc(User user); // 가장 최신의 startDate 값 가져오기
 }
