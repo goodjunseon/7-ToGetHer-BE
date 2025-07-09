@@ -37,6 +37,15 @@ public class UserPillService {
 
     public IntakeOption saveUserPill(UserPillRequest dto, String email) {
         try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+            // 기존 UserPill 전부 삭제
+            List<UserPill> existing = userPillRepository.findAllByUser(user);
+            for (UserPill up : existing) {
+                intakeRecordRepository.deleteByUserPill(up);
+                userPillRepository.delete(up);
+            }
+
             // dto에서 option을 가져와 IntakeOption으로 변환
             IntakeOption option = IntakeOption.valueOf(dto.getOption());
 
@@ -46,7 +55,7 @@ public class UserPillService {
             );
             log.info("IntakeInfo 저장 성공: {}", intakeInfo);
 
-            User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+
 
             // 시작 날짜 파싱
             LocalDate startDate = LocalDate.parse(dto.getStartDate());

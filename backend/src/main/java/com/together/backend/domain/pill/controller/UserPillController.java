@@ -68,7 +68,6 @@ public class UserPillController {
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
         }
         String email = oAuth2User.getEmail();
-
         try {
             UserPillRemainResponse response = userPillService.getCurrentRemain(email);
             return new BaseResponse<>(BaseResponseStatus.OK, response);
