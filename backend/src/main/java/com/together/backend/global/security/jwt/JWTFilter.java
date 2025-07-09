@@ -1,6 +1,8 @@
 package com.together.backend.global.security.jwt;
 
 
+import com.together.backend.global.security.jwt.model.BlackListToken;
+import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
@@ -24,6 +26,7 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final BlackListTokenService blackListTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
