@@ -4,10 +4,15 @@ import com.together.backend.domain.calendar.model.entity.IntakeRecord;
 import com.together.backend.domain.calendar.repository.BasicRecordRepository;
 import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
 import com.together.backend.domain.calendar.service.IntakeRecordInitService;
+import com.together.backend.domain.notification.model.NotificationSettings;
+import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.repository.NotificationSettingsRepository;
 import com.together.backend.domain.pill.model.IntakeInfo;
 import com.together.backend.domain.pill.model.IntakeOption;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.model.request.UserPillRequest;
+import com.together.backend.domain.pill.model.response.TodayPillResponse;
+import com.together.backend.domain.pill.model.response.UserPillRemainResponse;
 import com.together.backend.domain.pill.repository.IntakeInfoRepository;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.User;
@@ -17,9 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,10 +41,21 @@ public class UserPillService {
     private final UserRepository userRepository;
     private final IntakeRecordRepository intakeRecordRepository;
     private final BasicRecordRepository basicRecordRepository;
+    private final NotificationSettingsRepository notificationSettingsRepository;
     private final IntakeRecordInitService intakeRecordInitService;
+
 
     public IntakeOption saveUserPill(UserPillRequest dto, String email) {
         try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+            // 기존 UserPill 전부 삭제
+            List<UserPill> existing = userPillRepository.findAllByUser(user);
+            for (UserPill up : existing) {
+                intakeRecordRepository.deleteByUserPill(up);
+                userPillRepository.delete(up);
+            }
+
             // dto에서 option을 가져와 IntakeOption으로 변환
             IntakeOption option = IntakeOption.valueOf(dto.getOption());
 
@@ -45,16 +65,28 @@ public class UserPillService {
             );
             log.info("IntakeInfo 저장 성공: {}", intakeInfo);
 
-            User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+
 
             // 시작 날짜 파싱
             LocalDate startDate = LocalDate.parse(dto.getStartDate());
 
             // UserPill 엔티티 생성 및 저장
+            int defaultRemain = option.getRealDays() + option.getFakeDays();
+            // 다음 구매 기록일 저장
+            int daysBefore = notificationSettingsRepository
+                    .findByUserAndType(user, NotificationType.PILL_PURCHASE)
+                    .map(NotificationSettings::getDaysBefore)
+                    .orElse(5);
+
+            LocalDate nextPurchaseAlert = startDate.plusDays(defaultRemain - daysBefore);
+
+
             UserPill userPill = UserPill.builder()
                     .user(user)
                     .intakeInfo(intakeInfo)
                     .startDate(startDate)
+                    .currentRemain(defaultRemain)
+                    .nextPurchaseAlert(nextPurchaseAlert)
                     .build();
 
             userPillRepository.save(userPill);
@@ -94,6 +126,10 @@ public class UserPillService {
             throw new RuntimeException("잘못된 날짜 형식: " + dto.getStartDate(), e);
         }
 
+        // currentRemain 재지정
+        int defaultRemain = newOption.getRealDays() + newOption.getFakeDays();
+        userPill.setCurrentRemain(defaultRemain);
+
         userPillRepository.save(userPill);
         log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
 
@@ -107,5 +143,50 @@ public class UserPillService {
                 userPill
         );
         return newOption;
+    }
+
+    // 약 잔량 조회
+    public UserPillRemainResponse getCurrentRemain(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->  new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+        UserPill userPill = userPillRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("약 복용정보가 없습니다."));
+
+        return new UserPillRemainResponse(userPill.getCurrentRemain());
+    }
+
+    // 다음 복용까지 남은 시간 조회
+    public TodayPillResponse getPillTimeLeft(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다." + email));
+
+        UserPill userPill = userPillRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("약 복용 정보가 없습니다."));
+
+        LocalDate today = LocalDate.now();
+        // 오늘의 복용 기록
+        Optional<IntakeRecord> intakeOpt = intakeRecordRepository.findByUserPillAndIntakeDate(userPill, today);
+
+        boolean isTaken = intakeOpt.map(r -> Boolean.TRUE.equals(r.getIsTaken())).orElse(false);
+        // 알림 시간 가져오기
+        Optional<NotificationSettings> notiOpt = notificationSettingsRepository.findByUserAndType(user, NotificationType.PILL_INTAKE);
+
+        if(notiOpt.isEmpty() || notiOpt.get().getNotificationTime() == null) {
+            return new TodayPillResponse(isTaken, null);
+        }
+
+        LocalTime pillTime = notiOpt.get().getNotificationTime();
+        LocalDateTime pillDateTime = LocalDateTime.of(today, pillTime);
+
+        // 남은 분 계산
+        long minutesLeft = Duration.between(LocalDateTime.now(), pillDateTime).toMinutes();
+
+        // (이미 먹었거나 시간이 지났으면 0)
+        if (isTaken || minutesLeft < 0) {
+            minutesLeft = 0;
+        }
+
+        return new TodayPillResponse(isTaken, minutesLeft);
+
     }
 }
