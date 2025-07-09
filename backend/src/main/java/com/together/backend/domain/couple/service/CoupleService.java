@@ -59,10 +59,10 @@ public class CoupleService {
                 .user(user)
                 .partnerUserId(partnerUserId)
                 .connectedAt(LocalDateTime.now())
-                .status(CoupleStatus.CONNECT)
+                .isConnected(true)
                 .build();
 
-        log.info("partner 객체 생성: userEmail = {}, partnerEmail = {}, status = {}", userEmail, partnerEmail, couple.getStatus());
+        log.info("partner 객체 생성: userEmail = {}, partnerEmail = {}, isConnected = {}", userEmail, partnerEmail, couple.getIsConnected());
         coupleRepository.save(couple);
         return new ConnectResponse(couple.getUser().getNickname(), couple.getUser().getProfileImageUrl());
 
