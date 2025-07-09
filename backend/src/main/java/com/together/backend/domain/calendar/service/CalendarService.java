@@ -124,7 +124,22 @@ public class CalendarService {
                         .orElseThrow(() -> new RuntimeException("복용 기록 없음"));
 
                 if (request.getTakenPill() != null) {
-                    intakeRecord.setIsTaken(request.getTakenPill());
+                    // 기존값과 비교
+                    Boolean prevTaken = intakeRecord.getIsTaken();
+                    Boolean nowTaken = request.getTakenPill();
+                    intakeRecord.setIsTaken(nowTaken);
+
+                    int curRemain = userPill.getCurrentRemain() != null ? userPill.getCurrentRemain() : 0;
+                    // 복용처리로 true가 된 경우에만 잔량 감소
+                    if((prevTaken == null || !prevTaken) && nowTaken) {
+                        if(curRemain > 0) {
+                            userPill.setCurrentRemain(curRemain - 1);
+
+                        }
+                    } else if((prevTaken != null && prevTaken) && !nowTaken) {
+                        userPill.setCurrentRemain(curRemain + 1);
+                    }
+                    userPillRepository.save(userPill);
                     intakeRecordRepository.save(intakeRecord);
                 }
 
