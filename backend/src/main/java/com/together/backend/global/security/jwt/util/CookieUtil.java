@@ -36,10 +36,10 @@ public class CookieUtil {
         response.addCookie(cookie); // 쿠키를 응답에 추가
     }
 
-    public static Cookie deleteCookie(String name) {
+    public static Cookie deleteCookie(String name, String path) {
         Cookie cookie = new Cookie(name, null);
         cookie.setMaxAge(0); // 쿠키 즉시 만료
-        cookie.setPath("/"); // 쿠키 경로 설정
+        cookie.setPath(path); // 쿠키 경로 설정
         cookie.setHttpOnly(true);
         return cookie; // 삭제할 쿠키 반환
     }

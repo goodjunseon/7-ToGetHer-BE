@@ -1,6 +1,6 @@
 package com.together.backend.global.security.oauth2.dto;
 
-import com.together.backend.user.model.entity.Role;
+import com.together.backend.domain.user.model.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class UserDTO {
+    private Long userId;
     private String socialId; // "kakao_1234567890"
     private String name; // "홍길동"
     private String email; // "pzs2001926@gmail.com"

@@ -1,11 +1,13 @@
 package com.together.backend.global.security.jwt;
 
 
+import com.together.backend.global.security.jwt.model.BlackListToken;
+import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
 import com.together.backend.global.security.oauth2.dto.UserDTO;
-import com.together.backend.user.model.entity.Role;
+import com.together.backend.domain.user.model.entity.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final BlackListTokenService blackListTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -51,11 +54,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(token);
+        Long userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
 
         //userDTO를 생성하여 값 set
         UserDTO userDTO = UserDTO.builder()
                 .email(username)
+                .userId(userId)
                 .role(Role.valueOf(role))
                 .build();
 

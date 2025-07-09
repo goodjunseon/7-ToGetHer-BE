@@ -20,9 +20,9 @@ public class BaseResponse<T> {
 
     // 요청에 성공한 경우
     public BaseResponse(T result) {
-        this.isSuccess = BaseResponseStatus.SUCCESS.isSuccess();
-        this.status = BaseResponseStatus.SUCCESS.getCode();
-        this.message = BaseResponseStatus.SUCCESS.getMessage();
+        this.isSuccess = BaseResponseStatus.OK.isSuccess();
+        this.status = BaseResponseStatus.OK.getCode();
+        this.message = BaseResponseStatus.OK.getMessage();
         this.result = result;
     }
 
