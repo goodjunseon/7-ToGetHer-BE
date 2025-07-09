@@ -1,7 +1,6 @@
 package com.together.backend.global.security.jwt;
 
 
-import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.jwt.util.JWTUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
@@ -25,21 +24,11 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final BlackListTokenService blackListTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        String uri = request.getRequestURI();
-        System.out.println("JWTFilter: " + uri);
-
-        if (uri.startsWith("/api/user/login/kakao") || uri.startsWith("/oauth2/authorization/kakao")) {
-            // 카카오 로그인 관련 요청은 JWT 검증을 하지 않음
-            System.out.println("JWTFilter: 카카오 로그인 관련 요청이므로 다음 필터로 이동");
-            filterChain.doFilter(request, response);
-            return;
-        }
+        System.out.println("JWTFilter: " + request.getRequestURI());
 
         // 쿠키에서 accessToken 꺼내기
         String token = CookieUtil.getCookieValue(request, "accessToken");
@@ -49,15 +38,6 @@ public class JWTFilter extends OncePerRequestFilter {
             System.out.println("JWTFilter: token null이므로 다음 필터로 이동");
             filterChain.doFilter(request, response);
             // 토큰 없으면 JWT 검증을 하지 않고 다음 필터로 넘어감
-            return;
-        }
-
-        // 블랙리스트 검증
-        if (blackListTokenService.isBlackListed(token)) {
-            log.info("JWTFilter: 블랙리스트에 등록된 토큰입니다.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"message\": \"블랙리스트에 등록된 토큰입니다. 다시 로그인 해주세요.\"}");
             return;
         }
 
