@@ -4,6 +4,9 @@ import com.together.backend.domain.calendar.model.entity.IntakeRecord;
 import com.together.backend.domain.calendar.repository.BasicRecordRepository;
 import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
 import com.together.backend.domain.calendar.service.IntakeRecordInitService;
+import com.together.backend.domain.notification.model.NotificationSettings;
+import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.repository.NotificationSettingsRepository;
 import com.together.backend.domain.pill.model.IntakeInfo;
 import com.together.backend.domain.pill.model.IntakeOption;
 import com.together.backend.domain.pill.model.UserPill;
@@ -33,7 +36,9 @@ public class UserPillService {
     private final UserRepository userRepository;
     private final IntakeRecordRepository intakeRecordRepository;
     private final BasicRecordRepository basicRecordRepository;
+    private final NotificationSettingsRepository notificationSettingsRepository;
     private final IntakeRecordInitService intakeRecordInitService;
+
 
     public IntakeOption saveUserPill(UserPillRequest dto, String email) {
         try {
@@ -62,12 +67,21 @@ public class UserPillService {
 
             // UserPill 엔티티 생성 및 저장
             int defaultRemain = option.getRealDays() + option.getFakeDays();
+            // 다음 구매 기록일 저장
+            int daysBefore = notificationSettingsRepository
+                    .findByUserAndType(user, NotificationType.PILL_PURCHASE)
+                    .map(NotificationSettings::getDaysBefore)
+                    .orElse(5);
+
+            LocalDate nextPurchaseAlert = startDate.plusDays(defaultRemain - daysBefore);
+
 
             UserPill userPill = UserPill.builder()
                     .user(user)
                     .intakeInfo(intakeInfo)
                     .startDate(startDate)
                     .currentRemain(defaultRemain)
+                    .nextPurchaseAlert(nextPurchaseAlert)
                     .build();
 
             userPillRepository.save(userPill);
