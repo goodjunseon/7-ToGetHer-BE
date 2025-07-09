@@ -52,10 +52,13 @@ public class UserPillService {
             LocalDate startDate = LocalDate.parse(dto.getStartDate());
 
             // UserPill 엔티티 생성 및 저장
+            int defaultRemain = option.getRealDays() + option.getFakeDays();
+
             UserPill userPill = UserPill.builder()
                     .user(user)
                     .intakeInfo(intakeInfo)
                     .startDate(startDate)
+                    .currentRemain(defaultRemain)
                     .build();
 
             userPillRepository.save(userPill);
@@ -94,6 +97,10 @@ public class UserPillService {
         } catch (DateTimeParseException e) {
             throw new RuntimeException("잘못된 날짜 형식: " + dto.getStartDate(), e);
         }
+
+        // currentRemain 재지정
+        int defaultRemain = newOption.getRealDays() + newOption.getFakeDays();
+        userPill.setCurrentRemain(defaultRemain);
 
         userPillRepository.save(userPill);
         log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
