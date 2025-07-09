@@ -11,6 +11,7 @@ import com.together.backend.domain.pill.model.IntakeInfo;
 import com.together.backend.domain.pill.model.IntakeOption;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.model.request.UserPillRequest;
+import com.together.backend.domain.pill.model.response.TodayPillResponse;
 import com.together.backend.domain.pill.model.response.UserPillRemainResponse;
 import com.together.backend.domain.pill.repository.IntakeInfoRepository;
 import com.together.backend.domain.pill.repository.UserPillRepository;
@@ -21,9 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -148,5 +153,40 @@ public class UserPillService {
                 .orElseThrow(() -> new IllegalArgumentException("약 복용정보가 없습니다."));
 
         return new UserPillRemainResponse(userPill.getCurrentRemain());
+    }
+
+    // 다음 복용까지 남은 시간 조회
+    public TodayPillResponse getPillTimeLeft(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다." + email));
+
+        UserPill userPill = userPillRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("약 복용 정보가 없습니다."));
+
+        LocalDate today = LocalDate.now();
+        // 오늘의 복용 기록
+        Optional<IntakeRecord> intakeOpt = intakeRecordRepository.findByUserPillAndIntakeDate(userPill, today);
+
+        boolean isTaken = intakeOpt.map(r -> Boolean.TRUE.equals(r.getIsTaken())).orElse(false);
+        // 알림 시간 가져오기
+        Optional<NotificationSettings> notiOpt = notificationSettingsRepository.findByUserAndType(user, NotificationType.PILL_INTAKE);
+
+        if(notiOpt.isEmpty() || notiOpt.get().getNotificationTime() == null) {
+            return new TodayPillResponse(isTaken, null);
+        }
+
+        LocalTime pillTime = notiOpt.get().getNotificationTime();
+        LocalDateTime pillDateTime = LocalDateTime.of(today, pillTime);
+
+        // 남은 분 계산
+        long minutesLeft = Duration.between(LocalDateTime.now(), pillDateTime).toMinutes();
+
+        // (이미 먹었거나 시간이 지났으면 0)
+        if (isTaken || minutesLeft < 0) {
+            minutesLeft = 0;
+        }
+
+        return new TodayPillResponse(isTaken, minutesLeft);
+
     }
 }
