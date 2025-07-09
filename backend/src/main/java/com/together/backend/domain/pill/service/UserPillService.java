@@ -8,6 +8,7 @@ import com.together.backend.domain.pill.model.IntakeInfo;
 import com.together.backend.domain.pill.model.IntakeOption;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.model.request.UserPillRequest;
+import com.together.backend.domain.pill.model.response.UserPillRemainResponse;
 import com.together.backend.domain.pill.repository.IntakeInfoRepository;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.User;
@@ -107,5 +108,15 @@ public class UserPillService {
                 userPill
         );
         return newOption;
+    }
+
+    // 약 잔량 조회
+    public UserPillRemainResponse getCurrentRemain(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->  new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+        UserPill userPill = userPillRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("약 복용정보가 없습니다."));
+
+        return new UserPillRemainResponse(userPill.getCurrentRemain());
     }
 }

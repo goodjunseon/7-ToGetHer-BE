@@ -1,5 +1,6 @@
 package com.together.backend.domain.pill.controller;
 
+import com.together.backend.domain.pill.model.response.UserPillRemainResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
@@ -59,6 +60,22 @@ public class UserPillController {
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
         }
 
+    }
 
+    @GetMapping("/user-pill/remain")
+    public BaseResponse<UserPillRemainResponse> getCurrentRemain(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        if (oAuth2User == null) {
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
+        }
+        String email = oAuth2User.getEmail();
+
+        try {
+            UserPillRemainResponse response = userPillService.getCurrentRemain(email);
+            return new BaseResponse<>(BaseResponseStatus.OK, response);
+        } catch(IllegalArgumentException e) {
+            return new BaseResponse<>(BaseResponseStatus.NOT_FOUND, null);
+        } catch(Exception e) {
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
+        }
     }
 }
