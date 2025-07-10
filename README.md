@@ -5,12 +5,6 @@
 
 ## 📌 Main Function
 
-작성중...
-
----
-
-## 
-
 ---
 
 
@@ -29,7 +23,7 @@
 
 ## 📀 ERD
 
-작성중...
+![ToGetHer-erd.png](document/ToGetHer-erd.png)
 
 ---
 
