@@ -37,7 +37,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
-
         String email = customUserDetails.getEmail();
         Long userId = customUserDetails.getUserId();
 
@@ -55,17 +54,19 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         jwtTokenService.refreshTokenSave(email, refreshToken);
 
-        // 개발 환경 테스트용
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        response.sendRedirect("http://7-together.kro.kr/?step=2");
 
-        response.getWriter().write("{\"message\": \"OAuth2 login success. JWT cookie set.\"}");
-        response.flushBuffer();  // 확실하게 커밋
+//        response.getWriter().write("{\"message\": \"OAuth2 login success. JWT cookie set.\"}");
+//        response.flushBuffer();  // 확실하게 커밋
 
         // 프론트와 연결 후 리디렉션 설정
 //        response.addCookie(createCookie("accessToken", token));
 //        response.addCookie(createCookie("refreshToken", refreshToken));
-//        response.sendRedirect("http://localhost:3000/");
+
+
+        //        // 개발 환경 테스트용
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
     }
 }
