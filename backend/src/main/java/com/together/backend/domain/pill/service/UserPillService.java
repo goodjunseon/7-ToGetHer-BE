@@ -118,9 +118,10 @@ public class UserPillService {
         intakeInfoRepository.save(intakeInfo);
         log.info("IntakeInfo 업데이트 성공: {}", intakeInfo);
 
+        LocalDate newStartDate;
         // 시작 날짜 업데이트
         try {
-            LocalDate newStartDate = LocalDate.parse(dto.getStartDate());
+            newStartDate = LocalDate.parse(dto.getStartDate());
             userPill.setStartDate(newStartDate);
         } catch (DateTimeParseException e) {
             throw new RuntimeException("잘못된 날짜 형식: " + dto.getStartDate(), e);
@@ -129,6 +130,15 @@ public class UserPillService {
         // currentRemain 재지정
         int defaultRemain = newOption.getRealDays() + newOption.getFakeDays();
         userPill.setCurrentRemain(defaultRemain);
+
+        // **nextPurchaseAlert 재계산 추가**
+        int daysBefore = notificationSettingsRepository
+                .findByUserAndType(user, NotificationType.PILL_PURCHASE)
+                .map(NotificationSettings::getDaysBefore)
+                .orElse(5); // 기본값 5
+
+        LocalDate nextPurchaseAlert = newStartDate.plusDays(defaultRemain - daysBefore);
+        userPill.setNextPurchaseAlert(nextPurchaseAlert);
 
         userPillRepository.save(userPill);
         log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
