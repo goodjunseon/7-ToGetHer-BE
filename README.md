@@ -35,7 +35,7 @@
 ---
 
 ## 🤝🏻 Git Convention
-### [Git Convention](document/GitConvention)
+### [Git Convention](document/GitConvention.md)
 
 ---
 ## 🤝🏻 Code Convention
