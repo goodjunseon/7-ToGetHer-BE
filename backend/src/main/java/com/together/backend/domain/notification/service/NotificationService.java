@@ -30,6 +30,7 @@ public class NotificationService {
     private final NotificationSettingsRepository notificationSettingsRepository;
     private final UserPillRepository userPillRepository;
     private final IntakeRecordRepository intakeRecordRepository;
+    private final NotificationSseService notificationSseService;
 
     @Transactional
     public Notification sendNotification(
@@ -56,7 +57,9 @@ public class NotificationService {
                 .isRead(false)
                 .build();
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        notificationSseService.notifyUser(saved);
+        return saved;
     }
 
     /**
