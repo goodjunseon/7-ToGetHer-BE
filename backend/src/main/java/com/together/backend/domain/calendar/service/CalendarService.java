@@ -12,6 +12,8 @@ import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
 import com.together.backend.domain.calendar.repository.RelationRecordRepository;
 import com.together.backend.domain.couple.model.entity.Couple;
 import com.together.backend.domain.couple.repository.CoupleRepository;
+import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.service.NotificationService;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.Gender;
@@ -38,6 +40,7 @@ public class CalendarService {
     private final UserRepository userRepository;
     private final CoupleRepository coupleRepository;
     private final UserPillRepository userPillRepository;
+    private final NotificationService notificationService;
 
     @Autowired
     public CalendarService(
@@ -46,7 +49,8 @@ public class CalendarService {
             IntakeRecordRepository intakeRecordRepository,
             UserRepository userRepository,
             CoupleRepository coupleRepository,
-            UserPillRepository userPillRepository
+            UserPillRepository userPillRepository,
+            NotificationService notificationService
     ) {
         this.relationRecordRepository = relationRecordRepository;
         this.basicRecordRepository = basicRecordRepository;
@@ -54,6 +58,7 @@ public class CalendarService {
         this.userRepository = userRepository;
         this.coupleRepository = coupleRepository;
         this.userPillRepository = userPillRepository;
+        this.notificationService = notificationService;
     }
 
     // 캘린더 기록 등록 로직
@@ -156,6 +161,18 @@ public class CalendarService {
                         basicRecord.setMoodEmoji(request.getMoodEmoji());
                 }
                 basicRecordRepository.save(basicRecord);
+
+                // 알림 서비스 호출 로직 추가
+                if(request.getMoodEmoji() != null) {
+                    // 파트너에게 알림 전송
+                    notificationService.sendNotification(
+                            partnerUser.getUserId(),
+                            user.getUserId(),
+                            NotificationType.EMOTION_UPDATE,
+                            "감정이 기록되었어요.",
+                            user.getNickname() + " 님이 오늘 감정을 등록했어요! 한 번 확인해보세요."
+                    );
+                }
 
             } else if (isMale) {
                 // [불가] 감정, 복용 기록

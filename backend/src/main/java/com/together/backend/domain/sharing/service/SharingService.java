@@ -1,6 +1,8 @@
 package com.together.backend.domain.sharing.service;
 
 import com.together.backend.domain.couple.repository.CoupleRepository;
+import com.together.backend.domain.notification.model.NotificationType;
+import com.together.backend.domain.notification.service.NotificationService;
 import com.together.backend.domain.sharing.model.Sharing;
 import com.together.backend.domain.sharing.model.response.ConfirmResponse;
 import com.together.backend.domain.sharing.model.response.SaveUrlResponse;
@@ -20,6 +22,7 @@ public class SharingService {
     private final SharingRepository sharingRepository;
     private final UserRepository userRepository;
     private final CoupleRepository coupleRepository;
+    private final NotificationService notificationService;
 
     public SaveUrlResponse saveUrl(String email, String url) {
 
@@ -57,6 +60,15 @@ public class SharingService {
 
         sharing.confirm();
         sharingRepository.save(sharing); // 명시적 저장
+
+        // 여기서 알림 서비스 호출
+        notificationService.sendNotification(
+                inviter.getUserId(),          // 알림 받을 사람: 초대자(여성)
+                accepter.getUserId(),         // 알림 보낸 사람: 수락자(남성)
+                NotificationType.PARTNER_REQUEST, // 혹은 PARTNER_CONFIRMED
+                "파트너 연동이 수락되었습니다.",
+                accepter.getNickname() + "님이 파트너 요청을 수락했습니다!"
+        );
 
         return  new ConfirmResponse(sharing.isConfirmed(), sharing.getConfirmedAt());
     }
