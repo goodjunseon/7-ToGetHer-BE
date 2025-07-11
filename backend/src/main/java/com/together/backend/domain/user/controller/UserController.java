@@ -3,11 +3,13 @@ package com.together.backend.domain.user.controller;
 import com.together.backend.domain.user.model.request.UserRequest;
 import com.together.backend.domain.user.model.response.MyPageResponse;
 import com.together.backend.domain.user.model.response.UserResponse;
+import com.together.backend.domain.user.service.UserDeleteService;
+import com.together.backend.domain.user.service.UserProfileService;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
-import com.together.backend.domain.user.service.UserService;
+import com.together.backend.domain.user.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserAuthService userService;
+    private final UserProfileService userProfileService;
+    private final UserDeleteService userDeleteService;
 
     @PostMapping("/info")
     public BaseResponse<String> postUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @RequestBody UserRequest userRequest) {
@@ -33,7 +37,7 @@ public class UserController {
         String email = oAuth2User.getEmail();
 
         try {
-            userService.postUserInfo(email ,userRequest);
+            userProfileService.postUserInfo(email ,userRequest);
             return new BaseResponse<>(BaseResponseStatus.OK);
         } catch (IllegalArgumentException e) {
             log.warn("사용자 정보 저장 실패: {}", e.getMessage());
@@ -51,7 +55,7 @@ public class UserController {
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
         try {
-            MyPageResponse response = userService.getMyPageInfo(oAuth2User.getEmail());
+            MyPageResponse response = userProfileService.getMyPageInfo(oAuth2User.getEmail());
             return new BaseResponse<>(BaseResponseStatus.OK, response);
         } catch (IllegalArgumentException e) {
             log.warn("마이페이지 요청 실패: {}", e.getMessage());
@@ -70,8 +74,8 @@ public class UserController {
         }
         String email = oAuth2User.getEmail();
         try {
-            UserResponse response = userService.getUserInfo(email);
-            return new BaseResponse<UserResponse>(BaseResponseStatus.OK, response);
+            UserResponse response = userProfileService.getUserInfo(email);
+            return new BaseResponse<>(BaseResponseStatus.OK, response);
         } catch (IllegalArgumentException e) {
             log.warn("회원 정보 조회: {}", e.getMessage());
             return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
@@ -116,7 +120,7 @@ public class UserController {
         String email = oAuth2User.getEmail();
         log.info("회원 탈퇴 요청: 이메일 = {}", email);
         try {
-            userService.deleteUser(email);
+            userDeleteService.deleteUser(email);
             log.info("회원 탈퇴 성공: {}", email);
             return new BaseResponse<>(BaseResponseStatus.OK, "회원 탈퇴가 완료되었습니다.");
         } catch (IllegalArgumentException e) {
