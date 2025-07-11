@@ -26,22 +26,22 @@ public class UserPillController {
     public BaseResponse<UserPillResponse> createUserPill(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @RequestBody UserPillRequest dto) {
         if (oAuth2User ==null) {
             log.error("인증되지 않은 사용자 요청: {}", dto);
-            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, "로그인 정보가 없습니다.");
         }
 
         String email = oAuth2User.getEmail(); // 클라이언트 이메일 추출
-
-        IntakeOption intakeOption = userPillService.saveUserPill(dto, email);
-
-
-        if (intakeOption == null) {
-            log.error("잘못된 요청 데이터: {}", dto);
-            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
+        try {
+            IntakeOption intakeOption = userPillService.saveUserPill(dto, email);
+            log.info("사용자 {}의 약 복용 정보 저장 성공: {}", email, intakeOption.getName());
+            UserPillResponse response = new UserPillResponse(intakeOption.getName(), dto.getStartDate());
+            return new BaseResponse<>(BaseResponseStatus.OK, response);
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 요청 데이터: {}, error={}", dto, e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
+        } catch(Exception e) {
+            log.error("서버 오류: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버 오류가 발생했습니다.");
         }
-
-        log.info("사용자 {}의 약 복용 정보 저장 성공: {}", email, intakeOption.getName());
-        UserPillResponse response = new UserPillResponse(intakeOption.getName(), dto.getStartDate());
-        return new BaseResponse<>(BaseResponseStatus.OK, response);
     }
 
     @PatchMapping("user-pill/intake-info")
