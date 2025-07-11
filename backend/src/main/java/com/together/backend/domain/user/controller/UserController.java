@@ -2,6 +2,7 @@ package com.together.backend.domain.user.controller;
 
 import com.together.backend.domain.user.model.request.UserRequest;
 import com.together.backend.domain.user.model.response.MyPageResponse;
+import com.together.backend.domain.user.model.response.UserResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.jwt.util.CookieUtil;
@@ -39,6 +40,43 @@ public class UserController {
             return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             log.warn("사용자 정보 저장 중 알 수 없는 오류");
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/mypage")
+    public BaseResponse<MyPageResponse> getMyPageInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        if (oAuth2User == null) {
+            log.warn("마이페이지 요청: 인증되지 않은 사용자");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+        }
+        try {
+            MyPageResponse response = userService.getMyPageInfo(oAuth2User.getEmail());
+            return new BaseResponse<>(BaseResponseStatus.OK, response);
+        } catch (IllegalArgumentException e) {
+            log.warn("마이페이지 요청 실패: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("마이페이지 요청 중 서버 오류 발생", e);
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping
+    public BaseResponse<UserResponse> getUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        if (oAuth2User == null) {
+            log.warn("회원 조회 요청: 인증되지 않은 사용자");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+        }
+        String email = oAuth2User.getEmail();
+        try {
+            UserResponse response = userService.getUserInfo(email);
+            return new BaseResponse<UserResponse>(BaseResponseStatus.OK, response);
+        } catch (IllegalArgumentException e) {
+            log.warn("회원 정보 조회: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.warn("회원 정보 조회 중 서버 오류 발생,", e);
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -90,22 +128,6 @@ public class UserController {
         }
     }
 
-    @GetMapping("/mypage")
-    public BaseResponse<MyPageResponse> getMyPageInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
-        if (oAuth2User == null) {
-            log.warn("마이페이지 요청: 인증되지 않은 사용자");
-            return new BaseResponse<MyPageResponse>(BaseResponseStatus.UNAUTHORIZED);
-        }
-        try {
-            MyPageResponse response = userService.getMyPageInfo(oAuth2User.getEmail());
-            return new BaseResponse<>(BaseResponseStatus.OK, response);
-        } catch (IllegalArgumentException e) {
-            log.warn("마이페이지 요청 실패: {}", e.getMessage());
-            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            log.error("마이페이지 요청 중 서버 오류 발생", e);
-            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
 
 }

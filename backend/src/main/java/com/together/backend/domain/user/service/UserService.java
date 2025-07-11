@@ -11,6 +11,7 @@ import com.together.backend.domain.sharing.repository.SharingRepository;
 import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.request.UserRequest;
 import com.together.backend.domain.user.model.response.MyPageResponse;
+import com.together.backend.domain.user.model.response.UserResponse;
 import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.service.JwtTokenService;
 import com.together.backend.domain.user.model.entity.User;
@@ -66,19 +67,6 @@ public class UserService {
         log.info("jwtTokenService.refreshTokenDelete() 호출");
     }
 
-    public void updateUserRole(String email, Role role) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            log.warn("사용자를 찾을 수 없습니다: {}", email);
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
-        }
-
-        User user = optionalUser.get();
-        user.setRole(role);
-        userRepository.save(user);
-        log.info("사용자 역할 업데이트 완료: {}, 새로운 역할: {}", email, role);
-    }
-
     public MyPageResponse getMyPageInfo(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다: "));
         return new MyPageResponse(user.getNickname(), user.getEmail(), user.getProfileImageUrl());
@@ -101,8 +89,8 @@ public class UserService {
 
     @Transactional
     public void postUserInfo(String email, UserRequest userRequest) {
-        User user = userRepository.findByEmail(email).
-                orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         String nickname= userRequest.getNickname();
         String role = userRequest.getRole();
@@ -119,5 +107,20 @@ public class UserService {
         user.setRole(Role.valueOf(role));
         user.setIsTakingPill(userRequest.isTakingPill());
 
+    }
+
+    public UserResponse getUserInfo(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .socialId(user.getSocialId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileImage(user.getProfileImageUrl())
+                .isTakingPill(user.getIsTakingPill())
+                .role(String.valueOf(user.getRole()))
+                .build();
     }
 }
