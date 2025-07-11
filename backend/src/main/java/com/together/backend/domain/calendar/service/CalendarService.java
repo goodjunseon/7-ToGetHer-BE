@@ -16,7 +16,6 @@ import com.together.backend.domain.notification.model.NotificationType;
 import com.together.backend.domain.notification.service.NotificationService;
 import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
-import com.together.backend.domain.user.model.entity.Gender;
 import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;

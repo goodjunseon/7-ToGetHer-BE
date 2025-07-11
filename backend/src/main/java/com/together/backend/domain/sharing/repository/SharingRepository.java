@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface SharingRepository extends JpaRepository<Sharing, Long> {
     Optional<Sharing> findByUser(User user);
+
+    void deleteByUser(User user);
 }
