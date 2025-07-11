@@ -112,15 +112,6 @@ public class UserService {
     public UserResponse getUserInfo(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        return UserResponse.builder()
-                .userId(user.getUserId())
-                .socialId(user.getSocialId())
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .profileImage(user.getProfileImageUrl())
-                .isTakingPill(user.getIsTakingPill())
-                .role(String.valueOf(user.getRole()))
-                .build();
+            return UserResponse.from(user);
     }
 }
