@@ -36,7 +36,7 @@ public class MainPageService {
     // 사용자의 이메일 받고 사용자 정보를 전달함
     public UserInfoResponse getUserInfo(String email) {
         User user = getOrThrow(email);
-        return new UserInfoResponse(user.getEmail(), user.getNickname(), user.getProfileImageUrl());
+        return UserInfoResponse.from(user);
     }
 
     public PartnerInfoResponse getPartnerInfo(String email) {
