@@ -1,11 +1,21 @@
 package com.together.backend.domain.user.model.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@AllArgsConstructor
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserResponse {
-    private String email; // 유저 이메일
-    private String role; // 유저 역할
+    private Long userId;
+    private String socialId;
+    private String nickname;
+    private String email;
+    private String profileImage;
+    private boolean isTakingPill;
+    private String role;
 }
