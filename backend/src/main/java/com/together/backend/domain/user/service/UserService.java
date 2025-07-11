@@ -9,6 +9,7 @@ import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.sharing.repository.SharingRepository;
 import com.together.backend.domain.user.model.entity.Role;
+import com.together.backend.domain.user.model.request.UserRequest;
 import com.together.backend.domain.user.model.response.MyPageResponse;
 import com.together.backend.global.security.jwt.service.BlackListTokenService;
 import com.together.backend.global.security.jwt.service.JwtTokenService;
@@ -96,5 +97,27 @@ public class UserService {
         basicRecordRepository.deleteByUser(user);
         notificationRepository.deleteByReceiver(user);
         notificationRepository.deleteBySender(user);
+    }
+
+    @Transactional
+    public void postUserInfo(String email, UserRequest userRequest) {
+        User user = userRepository.findByEmail(email).
+                orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        String nickname= userRequest.getNickname();
+        String role = userRequest.getRole();
+
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 비어있을 수 없습니다.");
+        }
+
+        if (!role.equals("ROLE_USER") && !role.equals("ROLE_PARTNER")) {
+            throw new IllegalArgumentException("잘못된 Role 값입니다.");
+        }
+
+        user.setNickname(nickname);
+        user.setRole(Role.valueOf(role));
+        user.setIsTakingPill(userRequest.isTakingPill());
+
     }
 }

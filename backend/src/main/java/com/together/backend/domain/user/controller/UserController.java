@@ -1,15 +1,12 @@
 package com.together.backend.domain.user.controller;
 
-import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.request.UserRequest;
 import com.together.backend.domain.user.model.response.MyPageResponse;
-import com.together.backend.domain.user.model.response.UserResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.jwt.util.CookieUtil;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
 import com.together.backend.domain.user.service.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +27,26 @@ public class UserController {
     * 쿠키 관련 로직은 HTTP 응답에 직접적으로 관여하는 작업이므로 서비스 계층이 아닌 컨트롤러 계층에서 처리하는 것이 적합
     * 서비스 계층은 비즈니스 로직만 담당, HTTP 관련 작업(쿠키,세션)은 컨트롤러 계층에서 처리하는 것이 적합하다.
      */
+    @PostMapping("/info")
+    public BaseResponse<String> postUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @RequestBody UserRequest userRequest) {
+        if (oAuth2User == null) {
+            log.warn("회원 정보 저장: 인증되지 않은 사용자");
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
+        }
+
+        String email = oAuth2User.getEmail();
+
+        try {
+            userService.postUserInfo(email ,userRequest);
+            return new BaseResponse<>(BaseResponseStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.warn("사용자 정보 저장 실패: {}", e.getMessage());
+            return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            log.warn("사용자 정보 저장 중 알 수 없는 오류");
+            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/logout")
     public BaseResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -78,18 +95,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/role")
-    public BaseResponse<UserResponse> updateUserRole(@AuthenticationPrincipal CustomOAuth2User oAuth2User, @RequestBody UserRequest userRequest) {
-        String email = oAuth2User.getEmail();
-        log.info("updateUserRole() 호출됨, 사용자 이메일: {}", email);
-        try {
-            userService.updateUserRole(email, Role.valueOf(userRequest.getRole()));
-        } catch (Exception e) {
-            log.error("사용자 역할 업데이트 실패: {}", e.getMessage());
-            return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
-        }
-        return new BaseResponse<UserResponse>(BaseResponseStatus.OK, new UserResponse(email, userRequest.getRole()));
-    }
 
     @GetMapping("/mypage")
     public BaseResponse<MyPageResponse> getMyPageInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
