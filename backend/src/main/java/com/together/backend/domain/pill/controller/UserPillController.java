@@ -56,8 +56,11 @@ public class UserPillController {
             UserPillResponse response = new UserPillResponse(dto.getOption(), dto.getStartDate());
             log.info("사용자 {}의 약 복용 정보 업데이트 성공: {}", email, intakeNewOption.getName());
             return new BaseResponse<UserPillResponse>(BaseResponseStatus.OK, response);
+        } catch(IllegalArgumentException e){
+            log.warn("[UserPillController] 약 복용 정보 업데이트 실패(입력값): user={}, error={}", email, e.getMessage());
+          return new BaseResponse<>(BaseResponseStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            log.error("약 복용 정보 업데이트 실패: {}", e.getMessage());
+            log.error("[UserPillController] 약 복용 정보 업데이트 실패(서버오류): user={}, error={}", email, e.getMessage());
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
         }
 
@@ -66,15 +69,19 @@ public class UserPillController {
     @GetMapping("/user-pill/remain")
     public BaseResponse<UserPillRemainResponse> getCurrentRemain(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         if (oAuth2User == null) {
+            log.warn("[UserPillController] 잔량 조회: 인증되지 않은 사용자 요청");
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
         }
         String email = oAuth2User.getEmail();
         try {
             UserPillRemainResponse response = userPillService.getCurrentRemain(email);
+            log.info("[UserPillController] 잔량 조회 성공");
             return new BaseResponse<>(BaseResponseStatus.OK, response);
         } catch(IllegalArgumentException e) {
+            log.warn("[UserPillController] 잔량 조회 실패(입력값): user={}, error={}", email, e.getMessage());
             return new BaseResponse<>(BaseResponseStatus.NOT_FOUND, null);
         } catch(Exception e) {
+            log.error("[UserPillController] 잔량 조회 실패(서버오류): user={}, error={}", email, e.getMessage());
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
@@ -82,15 +89,19 @@ public class UserPillController {
     @GetMapping("/user-pill/minutes-left")
     public BaseResponse<TodayPillResponse> getMinutesLeft(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         if (oAuth2User == null) {
+            log.warn("[UserPillController] minutes-left: 인증되지 않은 사용자 요청");
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED, null);
         }
         String email = oAuth2User.getEmail();
         try {
             TodayPillResponse response = userPillService.getPillTimeLeft(email);
+            log.info("[UserPillController] minutes-left 조회 성공");
             return new BaseResponse<>(BaseResponseStatus.OK, response);
         } catch(IllegalArgumentException e) {
+            log.warn("[UserPillController] minutes-left 조회 실패");
             return new BaseResponse<>(BaseResponseStatus.NOT_FOUND, null);
         } catch(Exception e) {
+            log.error("[UserPillController] minutes-left 조회 실패(서버오류)");
             return new BaseResponse<>(BaseResponseStatus.INTERNAL_SERVER_ERROR, null);
         }
     }

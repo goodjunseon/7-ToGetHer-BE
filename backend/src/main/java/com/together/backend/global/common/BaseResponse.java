@@ -40,4 +40,11 @@ public class BaseResponse<T> {
         this.status = status.getCode();
         this.result = result;
     }
+
+    // 커스텀 메시지 입력
+    public BaseResponse(BaseResponseStatus status, String customMessage) {
+        this.isSuccess = status.isSuccess();
+        this.status = status.getCode();
+        this.message = customMessage;
+    }
 }
