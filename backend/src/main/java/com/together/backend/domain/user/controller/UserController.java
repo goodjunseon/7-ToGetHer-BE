@@ -44,9 +44,11 @@ public class UserController {
         }
 
         try {
-            userService.logout(accessToken);
-            Cookie cookie = CookieUtil.deleteCookie("accessToken", "/");
-            response.addCookie(cookie);
+            userService.logout(accessToken); // 블랙리스트 등록, RefreshToken 제거
+            // 브라우저 쿠키 직접 만료 처리
+            CookieUtil.expireCookie(response, "accessToken");
+            CookieUtil.expireCookie(response, "refreshToken");
+
             return new BaseResponse<>(BaseResponseStatus.OK);
         } catch (Exception e) {
             log.error("로그아웃 처리 중 오류 발생", e);
