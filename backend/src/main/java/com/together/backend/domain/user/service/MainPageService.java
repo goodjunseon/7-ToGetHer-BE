@@ -50,7 +50,7 @@ public class MainPageService {
                 long daysTogether = ChronoUnit.DAYS.between(couple.getConnectedAt().toLocalDate(), LocalDate.now());
 
                 // 파트너 조회
-                String partnerNickname = userRepository.findByUserId(couple.getPartnerUserId()).map(User::getNickname).orElse("알 수 없음");
+                String partnerNickname = userRepository.findByUserId(couple.getPartnerUserId()).map(User::getNickname).orElse(null);
                 return new PartnerInfoResponse(partnerNickname,true, daysTogether);
             } else {
                 //연결 안됨
