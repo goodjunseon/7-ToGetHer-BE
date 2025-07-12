@@ -58,7 +58,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (role.equals("ROLE_USER")){
             response.sendRedirect("http://7-together.kro.kr/?step=2");
         }else {
-            response.sendRedirect("http://7-together.kro.kr/partner?step=3");
+            response.sendRedirect("http://7-together.kro.kr/partner?step=4");
         }
 
 
