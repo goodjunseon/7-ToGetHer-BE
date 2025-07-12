@@ -24,6 +24,7 @@ public class SharingService {
     private final CoupleRepository coupleRepository;
     private final NotificationService notificationService;
 
+    @Transactional
     public SaveUrlResponse saveUrl(String email, String url) {
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
@@ -34,7 +35,7 @@ public class SharingService {
 
         Sharing saved = sharingRepository.save(sharing);
 
-        return new SaveUrlResponse(saved.getSharedUrl(), saved.isShared(), saved.getSharedAt());
+        return SaveUrlResponse.from(saved);
     }
 
     @Transactional
@@ -70,6 +71,6 @@ public class SharingService {
                 accepter.getNickname() + "님이 파트너 요청을 수락했습니다!"
         );
 
-        return  new ConfirmResponse(sharing.isConfirmed(), sharing.getConfirmedAt());
+        return  ConfirmResponse.from(sharing);
     }
 }
