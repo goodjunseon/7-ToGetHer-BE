@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    active: prod # 기본값: dev 배포시 prod로 오버라이드
+    active: dev # 기본값: dev 배포시 prod로 오버라이드
   config:
     import: optional:file:.env[.properties]
 

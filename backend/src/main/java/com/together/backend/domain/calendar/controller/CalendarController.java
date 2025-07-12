@@ -53,7 +53,8 @@ public class CalendarController {
 
         try {
             calendarService.saveCalendarRecord(user, request);
-            return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.OK, null));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new BaseResponse<>(BaseResponseStatus.OK));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
