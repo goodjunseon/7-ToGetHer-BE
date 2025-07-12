@@ -25,19 +25,17 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String nickname;
 
-    @Column(unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @Column
     private String profileImageUrl; // 프로필 이미지 URL
 
+    @Column(nullable = false)
     private Boolean isTakingPill = false; // 약 복용 여부
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(nullable = false, length = 20)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10)
-    private Gender gender;
 }

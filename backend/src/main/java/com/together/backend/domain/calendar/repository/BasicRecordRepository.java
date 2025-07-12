@@ -16,4 +16,5 @@ public interface BasicRecordRepository extends JpaRepository<BasicRecord, Long> 
     // IntakeRecord로 연결된 BasicRecord 모두 삭제 (custom 쿼리, bulk delete)
     void deleteByIntakeRecord(IntakeRecord intakeRecord);
 
+    void deleteByUser(User user);
 }

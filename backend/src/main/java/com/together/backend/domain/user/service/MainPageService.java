@@ -28,16 +28,19 @@ public class MainPageService {
     private final CoupleRepository coupleRepository;
     private final UserPillRepository userPillRepository;
 
+    private User getOrThrow(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
 
     // 사용자의 이메일 받고 사용자 정보를 전달함
     public UserInfoResponse getUserInfo(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        return new UserInfoResponse(user.getEmail(), user.getNickname(), user.getProfileImageUrl());
+        User user = getOrThrow(email);
+        return UserInfoResponse.from(user);
     }
 
     public PartnerInfoResponse getPartnerInfo(String email) {
-        // 사용자 조회
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = getOrThrow(email);
         Optional<Couple> optCouple = coupleRepository.findByUser(user);
 
         if (optCouple.isPresent()) {
@@ -47,7 +50,7 @@ public class MainPageService {
                 long daysTogether = ChronoUnit.DAYS.between(couple.getConnectedAt().toLocalDate(), LocalDate.now());
 
                 // 파트너 조회
-                String partnerNickname = userRepository.findByUserId(couple.getPartnerUserId()).map(User::getNickname).orElse("알 수 없음");
+                String partnerNickname = userRepository.findByUserId(couple.getPartnerUserId()).map(User::getNickname).orElse(null);
                 return new PartnerInfoResponse(partnerNickname,true, daysTogether);
             } else {
                 //연결 안됨
@@ -58,11 +61,10 @@ public class MainPageService {
             return new PartnerInfoResponse(null, false, 0L);
         }
 
-
     }
 
     public PillInfoResponse getPillInfo(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = getOrThrow(email);
         Optional<UserPill> optPill = userPillRepository.findTopByUserOrderByStartDateDesc(user);
 
         long daysOnPill = optPill.map(pill -> ChronoUnit.DAYS.between(pill.getStartDate(), LocalDate.now())).orElse(0L);

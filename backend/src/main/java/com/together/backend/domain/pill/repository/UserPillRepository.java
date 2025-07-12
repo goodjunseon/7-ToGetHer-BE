@@ -15,4 +15,6 @@ public interface UserPillRepository extends JpaRepository<UserPill, Long> {
     Optional<UserPill> findTopByUserOrderByStartDateDesc(User user); // 가장 최신의 startDate 값 가져오기
 
     List<UserPill> findAllByUser(User user);
+
+    void deleteByUser(User user);
 }
