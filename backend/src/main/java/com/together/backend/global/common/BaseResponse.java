@@ -8,12 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonPropertyOrder({"isSuccess", "code", "message", "result"})
+@JsonPropertyOrder({"isSuccess", "status", "message", "result"})
 public class BaseResponse<T> {
 
     @JsonProperty("isSuccess")
     private final Boolean isSuccess; // true or false
     private final int status; // HTTP 상태 코드
+    @JsonProperty("message")
     private final String message; // 응답 메시지
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private  T result;
