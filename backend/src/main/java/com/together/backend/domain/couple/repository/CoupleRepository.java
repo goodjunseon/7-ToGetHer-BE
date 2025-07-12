@@ -14,4 +14,6 @@ public interface CoupleRepository extends JpaRepository<Couple, Long> {
     boolean existsByUserOrPartnerUserId(User inviter, Long userId);
     // userId와 partnerUserId 조합으로 찾기
     Optional<Couple> findById(Long coupleId);
+
+    void deleteByUser(User user);
 }

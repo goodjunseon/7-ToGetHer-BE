@@ -36,11 +36,11 @@ public class CookieUtil {
         response.addHeader("Set-Cookie", cookieValue); // addHeader로 여러 개 가능
     }
 
-    public static Cookie deleteCookie(String name, String path) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setMaxAge(0); // 쿠키 즉시 만료
-        cookie.setPath(path); // 쿠키 경로 설정
-        cookie.setHttpOnly(true);
-        return cookie; // 삭제할 쿠키 반환
+    public static void expireCookie(HttpServletResponse response, String name) {
+        String expiredCookie = String.format(
+                "%s=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=None",
+                name
+        );
+        response.addHeader("Set-Cookie", expiredCookie);
     }
 }

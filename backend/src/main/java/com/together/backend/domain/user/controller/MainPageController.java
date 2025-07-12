@@ -24,7 +24,7 @@ public class MainPageController {
     public BaseResponse<UserInfoResponse> getUserInfo(@AuthenticationPrincipal CustomOAuth2User oAuth2User) {
         if (oAuth2User == null) {
             log.warn("UserInfo 요청: 인증되지 않은 사용자");
-            return new BaseResponse<UserInfoResponse>(BaseResponseStatus.UNAUTHORIZED);
+            return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
         try {
             String email = oAuth2User.getEmail(); // 유저 이메일

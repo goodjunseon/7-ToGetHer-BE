@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface RelationRecordRepository extends JpaRepository<RelationRecord, Long> {
     Optional<RelationRecord> findByUserEmailAndRecordDate(String email, LocalDate recordDate);
     Optional<RelationRecord> findByUserAndPartnerAndRecordDate(User user, User partner, LocalDate recordDate);
+
+    void deleteByUser(User user);
 }

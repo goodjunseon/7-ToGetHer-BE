@@ -8,12 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonPropertyOrder({"isSuccess", "code", "message", "result"})
+@JsonPropertyOrder({"isSuccess", "status", "message", "result"})
 public class BaseResponse<T> {
 
     @JsonProperty("isSuccess")
     private final Boolean isSuccess; // true or false
     private final int status; // HTTP 상태 코드
+    @JsonProperty("message")
     private final String message; // 응답 메시지
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private  T result;
@@ -39,5 +40,12 @@ public class BaseResponse<T> {
         this.message = status.getMessage();
         this.status = status.getCode();
         this.result = result;
+    }
+
+    // 커스텀 메시지 입력
+    public BaseResponse(BaseResponseStatus status, String customMessage) {
+        this.isSuccess = status.isSuccess();
+        this.status = status.getCode();
+        this.message = customMessage;
     }
 }
