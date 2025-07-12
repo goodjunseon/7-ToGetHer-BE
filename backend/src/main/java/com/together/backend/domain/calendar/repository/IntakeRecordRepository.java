@@ -1,7 +1,7 @@
 package com.together.backend.domain.calendar.repository;
 
 import com.together.backend.domain.calendar.model.entity.IntakeRecord;
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

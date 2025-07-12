@@ -1,18 +1,16 @@
-package com.together.backend.domain.notification.controller;
+package com.together.backend.domain.notificationSettings.controller;
 
 import com.together.backend.domain.notification.model.NotificationType;
-import com.together.backend.domain.notification.model.notification.request.NotificationDayRequest;
-import com.together.backend.domain.notification.model.notification.request.NotificationEnabledRequest;
-import com.together.backend.domain.notification.model.notification.request.NotificationTimeRequest;
-import com.together.backend.domain.notification.model.notification.response.NotificationDayResponse;
-import com.together.backend.domain.notification.model.notification.response.NotificationEnabledResponse;
-import com.together.backend.domain.notification.model.notification.response.NotificationTimeResponse;
+import com.together.backend.domain.notification.model.request.NotificationDayRequest;
+import com.together.backend.domain.notification.model.request.NotificationEnabledRequest;
+import com.together.backend.domain.notification.model.request.NotificationTimeRequest;
+import com.together.backend.domain.notification.model.response.NotificationDayResponse;
+import com.together.backend.domain.notification.model.response.NotificationEnabledResponse;
+import com.together.backend.domain.notification.model.response.NotificationTimeResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
-import com.together.backend.domain.notification.model.intake.request.IntakeRequest;
-import com.together.backend.domain.notification.model.intake.response.IntakeResponse;
-import com.together.backend.domain.notification.service.NotificationSettingsService;
+import com.together.backend.domain.notificationSettings.service.NotificationSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -1,4 +1,4 @@
-package com.together.backend.domain.pill.model;
+package com.together.backend.domain.pill.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

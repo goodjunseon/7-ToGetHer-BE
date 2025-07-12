@@ -2,7 +2,7 @@ package com.together.backend.domain.user.service;
 
 import com.together.backend.domain.couple.model.entity.Couple;
 import com.together.backend.domain.couple.repository.CoupleRepository;
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.model.response.mainpageinfo.PartnerInfoResponse;

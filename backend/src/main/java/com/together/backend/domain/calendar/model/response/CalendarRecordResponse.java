@@ -1,16 +1,15 @@
-package com.together.backend.domain.calendar.dto;
+package com.together.backend.domain.calendar.model.response;
 
 import com.together.backend.domain.calendar.model.entity.CondomUsage;
 import com.together.backend.domain.calendar.model.entity.MoodType;
 import lombok.*;
 
-// 캘린더 기록 등록용 DTO
-
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class CalendarRecordRequest {
+public class CalendarRecordResponse {
     private String date;
     private Boolean hadSex;
     private Boolean takenPill;
-    private CondomUsage usedCondom;
+    private CondomUsage usedCondom; // Enum!
     private MoodType moodEmoji;
 }
+

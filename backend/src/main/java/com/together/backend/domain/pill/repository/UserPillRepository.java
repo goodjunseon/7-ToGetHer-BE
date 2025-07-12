@@ -1,6 +1,6 @@
 package com.together.backend.domain.pill.repository;
 
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import com.together.backend.domain.user.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,9 +1,9 @@
 package com.together.backend.domain.calendar.controller;
 
-import com.together.backend.domain.calendar.dto.CalendarDetailResponse;
-import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
-import com.together.backend.domain.calendar.dto.CalendarRecordResponse;
-import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
+import com.together.backend.domain.calendar.model.response.CalendarDetailResponse;
+import com.together.backend.domain.calendar.model.request.CalendarRecordRequest;
+import com.together.backend.domain.calendar.model.response.CalendarRecordResponse;
+import com.together.backend.domain.calendar.model.response.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.service.CalendarService;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;

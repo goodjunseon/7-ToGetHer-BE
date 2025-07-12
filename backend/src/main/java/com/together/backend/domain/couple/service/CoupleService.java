@@ -1,11 +1,10 @@
 package com.together.backend.domain.couple.service;
 
 import com.together.backend.domain.couple.model.entity.Couple;
-import com.together.backend.domain.couple.model.entity.CoupleStatus;
 import com.together.backend.domain.couple.model.response.ConnectResponse;
 import com.together.backend.domain.couple.model.response.CoupleResponse;
 import com.together.backend.domain.couple.repository.CoupleRepository;
-import com.together.backend.domain.sharing.model.Sharing;
+import com.together.backend.domain.sharing.model.entity.Sharing;
 import com.together.backend.domain.sharing.repository.SharingRepository;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;

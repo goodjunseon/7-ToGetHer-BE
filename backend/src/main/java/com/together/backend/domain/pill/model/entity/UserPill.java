@@ -1,4 +1,4 @@
-package com.together.backend.domain.pill.model;
+package com.together.backend.domain.pill.model.entity;
 
 import com.together.backend.global.common.model.BaseEntity;
 import com.together.backend.domain.user.model.entity.User;

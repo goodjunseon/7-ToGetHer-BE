@@ -3,7 +3,7 @@ package com.together.backend.domain.sharing.service;
 import com.together.backend.domain.couple.repository.CoupleRepository;
 import com.together.backend.domain.notification.model.NotificationType;
 import com.together.backend.domain.notification.service.NotificationService;
-import com.together.backend.domain.sharing.model.Sharing;
+import com.together.backend.domain.sharing.model.entity.Sharing;
 import com.together.backend.domain.sharing.model.response.ConfirmResponse;
 import com.together.backend.domain.sharing.model.response.SaveUrlResponse;
 import com.together.backend.domain.sharing.repository.SharingRepository;
