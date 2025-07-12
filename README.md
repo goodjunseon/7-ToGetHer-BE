@@ -54,8 +54,11 @@
 [![My Skills](https://skillicons.dev/icons?i=idea,postman,figma,discord,notion)](https://skillicons.dev)
 
 ---
-## 📁 Fold er Structure
-
+<details>
+<summary> <h2>📁 Fold er Structure</h2></summary>
+    <div markdown="1">
+<h3>도메인 중심 구조 설계(DDD 구조)</h3> 
+        
 ```
 ├── java
 │   └── com
@@ -225,6 +228,9 @@
     ├── application-dev.yml
     ├── application-prod.yml
     └── application.yml
-
 ```
+</div>
+</details>
+
+
 
