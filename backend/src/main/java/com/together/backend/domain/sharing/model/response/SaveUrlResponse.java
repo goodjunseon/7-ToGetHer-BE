@@ -1,6 +1,6 @@
 package com.together.backend.domain.sharing.model.response;
 
-import com.together.backend.domain.sharing.model.Sharing;
+import com.together.backend.domain.sharing.model.entity.Sharing;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -94,7 +94,7 @@ public class SharingService {
         );
 
         log.info("[CONFIRM] 완료");
-        return  ConfirmResponse.from(sharing);
+        return ConfirmResponse.from(sharing);
     }
 
 }
