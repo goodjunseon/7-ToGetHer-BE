@@ -1,11 +1,11 @@
-package com.together.backend.domain.notification.service;
+package com.together.backend.domain.notificationSettings.service;
 
-import com.together.backend.domain.notification.model.NotificationSettings;
+import com.together.backend.domain.notificationSettings.model.NotificationSettings;
 import com.together.backend.domain.notification.model.NotificationType;
-import com.together.backend.domain.notification.model.notification.response.NotificationDayResponse;
-import com.together.backend.domain.notification.model.notification.response.NotificationEnabledResponse;
-import com.together.backend.domain.notification.model.notification.response.NotificationTimeResponse;
-import com.together.backend.domain.notification.repository.NotificationSettingsRepository;
+import com.together.backend.domain.notification.model.response.NotificationDayResponse;
+import com.together.backend.domain.notification.model.response.NotificationEnabledResponse;
+import com.together.backend.domain.notification.model.response.NotificationTimeResponse;
+import com.together.backend.domain.notificationSettings.repository.NotificationSettingsRepository;
 import com.together.backend.domain.user.model.entity.User;
 import com.together.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

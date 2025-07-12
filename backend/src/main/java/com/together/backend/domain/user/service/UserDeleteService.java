@@ -5,7 +5,7 @@ import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
 import com.together.backend.domain.calendar.repository.RelationRecordRepository;
 import com.together.backend.domain.couple.repository.CoupleRepository;
 import com.together.backend.domain.notification.repository.NotificationRepository;
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.sharing.repository.SharingRepository;
 import com.together.backend.domain.user.model.entity.User;

@@ -1,4 +1,4 @@
-package com.together.backend.domain.calendar.dto;
+package com.together.backend.domain.calendar.model.response;
 
 import com.together.backend.domain.calendar.model.entity.MoodType;
 import lombok.*;

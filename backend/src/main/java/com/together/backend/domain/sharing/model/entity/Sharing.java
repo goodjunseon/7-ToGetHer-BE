@@ -1,4 +1,4 @@
-package com.together.backend.domain.sharing.model;
+package com.together.backend.domain.sharing.model.entity;
 
 import com.together.backend.domain.couple.model.entity.Couple;
 import com.together.backend.domain.user.model.entity.User;

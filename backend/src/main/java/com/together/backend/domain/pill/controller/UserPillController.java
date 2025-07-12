@@ -5,7 +5,7 @@ import com.together.backend.domain.pill.model.response.UserPillRemainResponse;
 import com.together.backend.global.common.BaseResponse;
 import com.together.backend.global.common.BaseResponseStatus;
 import com.together.backend.global.security.oauth2.dto.CustomOAuth2User;
-import com.together.backend.domain.pill.model.IntakeOption;
+import com.together.backend.domain.pill.model.entity.IntakeOption;
 import com.together.backend.domain.pill.model.request.UserPillRequest;
 import com.together.backend.domain.pill.model.response.UserPillResponse;
 import com.together.backend.domain.pill.service.UserPillService;
