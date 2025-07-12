@@ -13,6 +13,7 @@ import java.security.PublicKey;
 public class CookieUtil {
 
     public static String getCookieValue(HttpServletRequest request, String name) {
+
         if (request.getCookies() == null) {
             log.warn("@@@@@getCookieValue:null@@@@@");
             return null;
@@ -31,7 +32,7 @@ public class CookieUtil {
     public static void createCookie(HttpServletResponse response, String name, String value) {
         int maxAge = 60 * 60 * 12; // 12시간
         String cookieValue = String.format(
-                "%s=%s; Path=/; Max-Age=%d; Secure; HttpOnly; SameSite=None",
+                "%s=%s; Path=/; Max-Age=%d; Secure; HttpOnly; SameSite=None; Domain=7-together.kro.kr",
                 name, value, maxAge
         );
         response.addHeader("Set-Cookie", cookieValue); // addHeader로 여러 개 가능
@@ -39,7 +40,7 @@ public class CookieUtil {
 
     public static void expireCookie(HttpServletResponse response, String name) {
         String expiredCookie = String.format(
-                "%s=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=None",
+                "%s=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=None; Domain=7-together.kro.kr",
                 name
         );
         response.addHeader("Set-Cookie", expiredCookie);
