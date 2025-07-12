@@ -76,15 +76,14 @@
 | **GitHub**  | [@goodjunseon](https://github.com/goodjunseon) | [@Lims](https://github.com/swoo0514) |
 
 ---
-## 🔗Architecture
-
-작성중...
+## 💫 Architecture
+![ToGetHer-Architecture.png](document/ToGetHer-Architecture.png)
 
 ---
 
 ## 📀 ERD
 
-작성중...
+![ToGetHer-erd.png](document/ToGetHer-erd.png)
 
 ---
 
