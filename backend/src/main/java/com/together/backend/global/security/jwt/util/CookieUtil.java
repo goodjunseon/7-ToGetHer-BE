@@ -14,6 +14,7 @@ public class CookieUtil {
 
     public static String getCookieValue(HttpServletRequest request, String name) {
         if (request.getCookies() == null) {
+            log.warn("@@@@@getCookieValue:null@@@@@");
             return null;
         }
 
