@@ -1,5 +1,6 @@
 package com.together.backend.global.security.oauth2.dto;
 
+import com.together.backend.domain.user.model.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -42,4 +43,6 @@ public class CustomOAuth2User implements OAuth2User {
     public Long getUserId() {
         return userDTO.getUserId();
     }
+
+    public Role getUserRole() {return userDTO.getRole();}
 }

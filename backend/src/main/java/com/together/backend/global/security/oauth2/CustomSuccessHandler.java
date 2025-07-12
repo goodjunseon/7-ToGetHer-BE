@@ -39,11 +39,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String email = customUserDetails.getEmail();
         Long userId = customUserDetails.getUserId();
+        String role = String.valueOf(customUserDetails.getUserRole()); // 기본값으로 ROLE_USER 설정
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-        String role = "ROLE_USER"; // 기본값으로 ROLE_USER 설정
+
 
 
         String accessToken = jwtUtil.createToken(email,userId, role);
@@ -54,7 +55,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         jwtTokenService.refreshTokenSave(email, refreshToken);
 
-        response.sendRedirect("http://7-together.kro.kr/?step=2");
+        if (role.equals("ROLE_USER")){
+            response.sendRedirect("http://7-together.kro.kr/?step=2");
+        }else {
+            response.sendRedirect("http://7-together.kro.kr/partner?step=3");
+        }
+
 
 //        response.getWriter().write("{\"message\": \"OAuth2 login success. JWT cookie set.\"}");
 //        response.flushBuffer();  // 확실하게 커밋
