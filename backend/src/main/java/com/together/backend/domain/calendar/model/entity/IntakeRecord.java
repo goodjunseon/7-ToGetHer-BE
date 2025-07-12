@@ -2,10 +2,9 @@ package com.together.backend.domain.calendar.model.entity;
 
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import jakarta.persistence.*;
 import lombok.*;
 

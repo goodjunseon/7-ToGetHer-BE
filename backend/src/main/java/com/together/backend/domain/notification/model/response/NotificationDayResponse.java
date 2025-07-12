@@ -1,4 +1,4 @@
-package com.together.backend.domain.notification.model.notification.response;
+package com.together.backend.domain.notification.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

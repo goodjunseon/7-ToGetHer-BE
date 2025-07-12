@@ -1,4 +1,4 @@
-package com.together.backend.domain.notification.model.intake.request;
+package com.together.backend.domain.notificationSettings.model.request;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

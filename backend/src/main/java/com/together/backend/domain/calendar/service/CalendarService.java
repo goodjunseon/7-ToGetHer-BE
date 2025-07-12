@@ -1,8 +1,8 @@
 package com.together.backend.domain.calendar.service;
 
-import com.together.backend.domain.calendar.dto.CalendarDetailResponse;
-import com.together.backend.domain.calendar.dto.CalendarRecordRequest;
-import com.together.backend.domain.calendar.dto.CalendarSummaryResponse;
+import com.together.backend.domain.calendar.model.response.CalendarDetailResponse;
+import com.together.backend.domain.calendar.model.request.CalendarRecordRequest;
+import com.together.backend.domain.calendar.model.response.CalendarSummaryResponse;
 import com.together.backend.domain.calendar.model.entity.BasicRecord;
 import com.together.backend.domain.calendar.model.entity.CondomUsage;
 import com.together.backend.domain.calendar.model.entity.IntakeRecord;
@@ -14,7 +14,7 @@ import com.together.backend.domain.couple.model.entity.Couple;
 import com.together.backend.domain.couple.repository.CoupleRepository;
 import com.together.backend.domain.notification.model.NotificationType;
 import com.together.backend.domain.notification.service.NotificationService;
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.entity.User;

@@ -1,5 +1,6 @@
-package com.together.backend.domain.notification.model;
+package com.together.backend.domain.notificationSettings.model;
 
+import com.together.backend.domain.notification.model.NotificationType;
 import com.together.backend.domain.user.model.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
