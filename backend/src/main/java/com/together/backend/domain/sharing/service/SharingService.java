@@ -39,8 +39,8 @@ public class SharingService {
     }
 
     @Transactional
-    public ConfirmResponse confirm(String inviterEmail, Long accepterId) {
-        log.info("[CONFIRM] 시작: inviterEmail={}, accepterId={}", inviterEmail, accepterId);
+    public ConfirmResponse confirm(String inviterEmail, String accepterEmail) {
+        log.info("[CONFIRM] 시작: inviterEmail={}, accepterId={}", inviterEmail, accepterEmail);
 
         // 1. 초대자 조회(사용자: 여성)
         User inviter = userRepository.findByEmail(inviterEmail)
@@ -51,9 +51,9 @@ public class SharingService {
         log.info("[CONFIRM] 초대자 조회 성공: inviterId={}, email={}", inviter.getUserId(), inviter.getEmail());
 
         // 2. 수락자 조회 (파트너: 남성)
-        User accepter = userRepository.findById(accepterId)
+        User accepter = userRepository.findByEmail(accepterEmail)
                 .orElseThrow(() -> {
-                    log.warn("[CONFIRM] 수락자 없음: accepterId={}", accepterId);
+                    log.warn("[CONFIRM] 수락자 없음: accepterId={}", accepterEmail);
                     return new IllegalArgumentException("수락자를 찾을 수 없습니다.");
                 });
         log.info("[CONFIRM] 수락자 조회 성공: accepterId={}, email={}", accepter.getUserId(), accepter.getEmail());

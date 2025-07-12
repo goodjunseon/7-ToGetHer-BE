@@ -48,14 +48,14 @@ public class SharingController {
             log.warn("인증되지 않은 사용자 요청: {}", oAuth2User);
             return new BaseResponse<>(BaseResponseStatus.UNAUTHORIZED);
         }
-        log.info("@@@@@@@@@@@@@ {} @@@@@@@@@@@@@@", oAuth2User.getUserId());
+        log.info("@@@@@@@@@@@@@ {} @@@@@@@@@@@@@@", oAuth2User.getEmail());
 
         // 나중에 GlobalExceptionHandler 리팩토링 가능
         try {
-            Long accepterId = oAuth2User.getUserId(); // 남성 Id : accepter
+            String accepterEmail = oAuth2User.getEmail(); // 남성 Id : accepter
             String inviterEmail = request.getUserEmail(); // 여성 email : inviter
 
-            ConfirmResponse response = sharingService.confirm(inviterEmail, accepterId);
+            ConfirmResponse response = sharingService.confirm(inviterEmail, accepterEmail);
             return new BaseResponse<>(BaseResponseStatus.OK, response);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 요청: {}", e.getMessage());
