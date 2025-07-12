@@ -1,6 +1,7 @@
 ## 👩🏼‍❤️‍👨🏼 ToGetHer
-### 우리의 피임, 함께라서 더 안전하고 편안하게.
 
+## [➡️ToGetHer 바로가기](https://7-together.kro.kr/)
+### 우리의 피임, 함께라서 더 안전하고 편안하게.
 ---
 
 ## 📌 Main Function
