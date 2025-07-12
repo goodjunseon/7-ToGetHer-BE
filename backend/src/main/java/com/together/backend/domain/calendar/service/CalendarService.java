@@ -214,10 +214,9 @@ public class CalendarService {
 
 
 
-    // 캘린더 랜딩 시 로직
     @Transactional
     public List<CalendarSummaryResponse> getCalendarSummary(User me, String month) {
-        // month: "2025-07"
+        log.info("[getCalendarSummary] 호출: userId={}, email={}, role={}, month={}", me.getUserId(), me.getEmail(), me.getRole(), month);
         LocalDate start = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalDate end = start.plusMonths(1).minusDays(1);
 
@@ -227,17 +226,24 @@ public class CalendarService {
             female = me;
         } else if (me.getRole() == Role.ROLE_PARTNER) {
             Couple coupleEntity = coupleRepository.findByPartnerUserId(me.getUserId())
-                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+                    .orElseThrow(() -> {
+                        log.error("[getCalendarSummary] 커플 정보 없음: partnerUserId={}", me.getUserId());
+                        return new RuntimeException("커플 정보 없음");
+                    });
             if (coupleEntity.getUser() == null) {
+                log.error("[getCalendarSummary] 커플 row의 user_id가 null");
                 throw new RuntimeException("커플 row의 user_id가 null입니다.");
             }
             female = coupleEntity.getUser();
         } else {
+            log.warn("[getCalendarSummary] 지원하지 않는 role: userId={}, role={}", me.getUserId(), me.getRole());
             throw new IllegalArgumentException("지원하지 않는 role입니다.");
         }
 
         List<BasicRecord> records = basicRecordRepository
                 .findAllByUserAndOccuredAtBetween(female, start.atStartOfDay(), end.atTime(23, 59, 59));
+
+        log.info("[getCalendarSummary] 조회결과: userId={}, count={}", female.getUserId(), records.size());
 
         return records.stream()
                 .map(record -> CalendarSummaryResponse.builder()
@@ -251,35 +257,42 @@ public class CalendarService {
 
 
 
-    // 날짜별 상세 조회 로직
     public CalendarDetailResponse getCalendarDetail(User me, LocalDate date) {
+        log.info("[getCalendarDetail] 호출: userId={}, email={}, role={}, date={}", me.getUserId(), me.getEmail(), me.getRole(), date);
         User female, male;
-        // 1. 내 role 기준으로 여성 / 남성 구분
-        if (me.getRole() == Role.ROLE_USER) { // 내가 여성(주유저)일 때
-            // 커플 테이블에서 내 partner_user_id로 남성 조회
+
+        if (me.getRole() == Role.ROLE_USER) {
             Couple coupleEntity = coupleRepository.findByUser_UserId(me.getUserId())
-                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+                    .orElseThrow(() -> {
+                        log.error("[getCalendarDetail] 커플 정보 없음: userId={}", me.getUserId());
+                        return new RuntimeException("커플 정보 없음");
+                    });
             User partner = userRepository.findByUserId(coupleEntity.getPartnerUserId())
-                    .orElseThrow(() -> new RuntimeException("파트너 유저 없음"));
+                    .orElseThrow(() -> {
+                        log.error("[getCalendarDetail] 파트너 유저 없음: partnerUserId={}", coupleEntity.getPartnerUserId());
+                        return new RuntimeException("파트너 유저 없음");
+                    });
             female = me;
             male = partner;
-        } else if (me.getRole() == Role.ROLE_PARTNER) { // 내가 남성(파트너)일 때
-            // 커플 테이블에서 내 user_id를 partner_user_id로 갖는 커플 row를 찾고, 여성(주유저) 조회
+        } else if (me.getRole() == Role.ROLE_PARTNER) {
             Couple coupleEntity = coupleRepository.findByPartnerUserId(me.getUserId())
-                    .orElseThrow(() -> new RuntimeException("커플 정보 없음"));
+                    .orElseThrow(() -> {
+                        log.error("[getCalendarDetail] 커플 정보 없음: partnerUserId={}", me.getUserId());
+                        return new RuntimeException("커플 정보 없음");
+                    });
             User partner = coupleEntity.getUser();
-            if (partner == null)
+            if (partner == null) {
+                log.error("[getCalendarDetail] 커플 row의 user_id가 null");
                 throw new RuntimeException("커플 row의 user_id가 null입니다.");
+            }
             female = partner;
             male = me;
         } else {
+            log.warn("[getCalendarDetail] 지원하지 않는 role: userId={}, role={}", me.getUserId(), me.getRole());
             throw new IllegalArgumentException("지원하지 않는 role입니다.");
         }
 
-
-
-
-        // 2. 복용 기록(항상 여자 user_id로 조회!)
+        // 복용 기록
         Optional<UserPill> userPillOpt = userPillRepository.findByUser_UserId(female.getUserId());
         Boolean takenPill = null;
 
@@ -288,8 +301,7 @@ public class CalendarService {
                     intakeRecordRepository.findByUserPillAndIntakeDate(userPillOpt.get(), date);
             takenPill = intakeOpt.map(IntakeRecord::getIsTaken).orElse(null);
         }
-
-        // 3. 감정 기록(항상 여자 user_id로 조회!)
+        // 감정 기록
         MoodType moodEmoji = basicRecordRepository
                 .findAllByUserAndOccuredAtBetween(female, date.atStartOfDay(), date.atTime(23, 59, 59))
                 .stream()
@@ -297,11 +309,14 @@ public class CalendarService {
                 .map(BasicRecord::getMoodEmoji)
                 .orElse(null);
 
-        // 4. 관계 기록 (항상 여자/남자 id 조합으로 조회)
+        // 관계 기록
         Optional<RelationRecord> relationOpt
                 = relationRecordRepository.findByUserAndPartnerAndRecordDate(female, male, date);
         Boolean hadSex = relationOpt.map(RelationRecord::getHadSex).orElse(null);
         CondomUsage usedCondom = relationOpt.map(RelationRecord::getHadCondom).orElse(null);
+
+        log.info("[getCalendarDetail] 결과: femaleUserId={}, maleUserId={}, date={}, takenPill={}, mood={}, hadSex={}, usedCondom={}",
+                female.getUserId(), male.getUserId(), date, takenPill, moodEmoji, hadSex, usedCondom);
 
         return CalendarDetailResponse.builder()
                 .date(date.toString())
