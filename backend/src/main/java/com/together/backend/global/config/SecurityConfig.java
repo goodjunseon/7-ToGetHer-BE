@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -73,6 +74,7 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests(auth-> auth
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 //                                .requestMatchers("/**").permitAll() // 개발 환경에서 모든 요청 허용
                         .requestMatchers ("/", "/oauth2/**", "/api/user/login/kakao","/api/auth/test/**").permitAll()
                         .anyRequest().authenticated() // 인증이 필요할 땐 자동으로 oauth2Login() 실행
