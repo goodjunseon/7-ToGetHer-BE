@@ -37,7 +37,12 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.addAllowedOrigin("https://7-together.kro.kr");
         config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedHeader("*");
+
+        config.addAllowedHeader("Origin");
+        config.addAllowedHeader("X-Requested-With");
+        config.addAllowedHeader("Content-Type");
+        config.addAllowedHeader("Accept");
+        config.addAllowedHeader("Authorization");  // 필요시
         config.addAllowedMethod("*");
         config.addExposedHeader("Set-Cookie");
 
