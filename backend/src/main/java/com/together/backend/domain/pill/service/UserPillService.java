@@ -48,8 +48,8 @@ public class UserPillService {
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("[UserPillService] 이메일로 유저 조회 실패: {}", email);
-                    return new IllegalArgumentException("해당 이메일 사용자를 찾을 수 없습니다.");
+                    log.warn("@@@@@[UserPillService] 이메일로 유저 조회 실패: {}@@@@@", email);
+                    return new IllegalArgumentException("해당 이메일 사용자를 찾을 수 없습니다: " +email);
                 });
     }
 
@@ -58,7 +58,7 @@ public class UserPillService {
         try {
             return IntakeOption.valueOf(option);
         } catch (Exception e) {
-            log.warn("[UserPillService] IntakeOption 파싱 실패: {}", option);
+            log.warn("@@@@@[UserPillService] IntakeOption 파싱 실패: {}@@@@@", option);
             throw new IllegalArgumentException("지원하지 않는 옵션입니다: " + option);
         }
     }
@@ -68,7 +68,7 @@ public class UserPillService {
         try {
             return LocalDate.parse(dateStr);
         } catch (DateTimeParseException e) {
-            log.warn("[UserPillService] 날짜 파싱 실패: {}", dateStr);
+            log.warn("@@@@@[UserPillService] 날짜 파싱 실패: {}@@@@@", dateStr);
             throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다: " + dateStr);
         }
     }
@@ -83,13 +83,13 @@ public class UserPillService {
         for (UserPill up : existing) {
             intakeRecordRepository.deleteByUserPill(up);
             userPillRepository.delete(up);
-            log.info("[UserPillService] 기존 UserPill 및 기록 삭제: user={}. userPillID=[]", email, up.getUserPillId());
+            log.info("@@@@@[UserPillService] 기존 UserPill 및 기록 삭제: user={}. userPillID={}@@@@@", email, up.getUserPillId());
         }
 
         // dto에서 option을 가져와 IntakeOption으로 변환
         IntakeOption option = parseOption(dto.getOption());
         IntakeInfo intakeInfo = intakeInfoRepository.save(IntakeInfo.builder().option(option).build());
-        log.info("[UserPillService] IntakeInfo 저장: {}", intakeInfo);
+        log.info("@@@@@[UserPillService] IntakeInfo 저장: {}@@@@@", intakeInfo);
 
         // 시작 날짜 파싱
         LocalDate startDate = parseStartDate(dto.getStartDate());
@@ -114,11 +114,11 @@ public class UserPillService {
                 .build();
 
         userPillRepository.save(userPill);
-        log.info("[UserPillService] UserPill 저장 성공: {}", userPill);
+        log.info("@@@@@[UserPillService] UserPill 저장 성공: {}@@@@@", userPill);
 
         // 초기 기록 인스턴스 생성
         intakeRecordInitService.createInitialRecords(startDate, option, userPill);
-        log.info("[UserPillService] IntakeRecord 초기화 완료");
+        log.info("@@@@@[UserPillService] IntakeRecord 초기화 완료@@@@@");
         return option;
     }
 
@@ -127,7 +127,7 @@ public class UserPillService {
         User user = getUserByEmail(email);
         // 기존 UserPill 조회
         UserPill userPill = userPillRepository.findByUser(user) .orElseThrow(() -> {
-            log.warn("[UserPillService] 약 복용 정보 없음: user={}", email);
+            log.warn("@@@@@[UserPillService] 약 복용 정보 없음: user={}@@@@@", email);
             return new IllegalArgumentException("약 복용 정보가 없습니다: " + email);
         });
 
@@ -136,7 +136,7 @@ public class UserPillService {
         IntakeInfo intakeInfo = userPill.getIntakeInfo();
         intakeInfo.setOption(newOption);
         intakeInfoRepository.save(intakeInfo);
-        log.info("[UserPillService] IntakeInfo 업데이트 성공: {}", intakeInfo);
+        log.info("@@@@@[UserPillService] IntakeInfo 업데이트 성공: {}@@@@@", intakeInfo);
 
         LocalDate newStartDate = parseStartDate(dto.getStartDate());
         userPill.setStartDate(newStartDate);
@@ -155,18 +155,18 @@ public class UserPillService {
         userPill.setNextPurchaseAlert(nextPurchaseAlert);
 
         userPillRepository.save(userPill);
-        log.info("사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}", email, newOption, dto.getStartDate());
+        log.info("@@@@@사용자 {}의 약 복용 정보 업데이트 완료: option={}, startDate={}@@@@@", email, newOption, dto.getStartDate());
 
         // 1. 기존 IntakeRecord 모두 삭제
         intakeRecordRepository.deleteByUserPill(userPill);
-        log.info("[UserPillService] 기존 IntakeRecord 삭제");
+        log.info("@@@@@[UserPillService] 기존 IntakeRecord 삭제@@@@@");
         // 2. 새로운 IntakeRecord 생성
         intakeRecordInitService.createInitialRecords(
                 userPill.getStartDate(),
                 newOption,
                 userPill
         );
-        log.info("[UserPillService] 새로운 IntakeRecord 생성");
+        log.info("@@@@@[UserPillService] 새로운 IntakeRecord 생성@@@@@");
         return newOption;
     }
 
@@ -177,14 +177,14 @@ public class UserPillService {
                     .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
             UserPill userPill = userPillRepository.findByUser(user)
                     .orElseThrow(() -> {
-                        log.warn("[UserPillService] 잔량 조회: 약 복용 정보 없음: user={}", email);
+                        log.warn("@@@@@[UserPillService] 잔량 조회: 약 복용 정보 없음: user={}@@@@@", email);
                         return new IllegalArgumentException("약 복용 정보가 없습니다: " + email);
                     });
 
-            log.info("[UserPillService] 잔량 조회 성공: user={}, remain={}", email, userPill.getCurrentRemain());
+            log.info("@@@@@[UserPillService] 잔량 조회 성공: user={}, remain={}@@@@@", email, userPill.getCurrentRemain());
             return new UserPillRemainResponse(userPill.getCurrentRemain());
         } catch (Exception e) {
-            log.error("[UserPillService] 잔량 조회 중 예외: user={}, error={}", email, e.getMessage());
+            log.error("@@@@@[UserPillService] 잔량 조회 중 예외: user={}, error={}@@@@@", email, e.getMessage());
             throw e;
         }
     }
@@ -196,7 +196,7 @@ public class UserPillService {
 
             UserPill userPill = userPillRepository.findByUser(user)
                     .orElseThrow(() -> {
-                        log.warn("[UserPillService] minutes-left: 약 복용 정보 없음: user={}", email);
+                        log.warn("@@@@@[UserPillService] minutes-left: 약 복용 정보 없음: user={}@@@@@", email);
                         return new IllegalArgumentException("약 복용 정보가 없습니다: " + email);
                     });
 
@@ -209,7 +209,7 @@ public class UserPillService {
             Optional<NotificationSettings> notiOpt = notificationSettingsRepository.findByUserAndType(user, NotificationType.PILL_INTAKE);
 
             if (notiOpt.isEmpty() || notiOpt.get().getNotificationTime() == null) {
-                log.warn("[UserPillService] minutes-left: 알림 설정 없음 or 시간 미설정: user={}", email);
+                log.warn("@@@@@[UserPillService] minutes-left: 알림 설정 없음 or 시간 미설정: user={}@@@@@", email);
                 return new TodayPillResponse(isTaken, null);
             }
 
@@ -221,15 +221,15 @@ public class UserPillService {
 
             // (이미 먹었거나 시간이 지났으면 0)
             if (isTaken || minutesLeft < 0) {
-                log.info("[UserPillService] minutes-left: 이미 복용 or 시간 지남: user={}, isTaken={}, minutesLeft={}", email, isTaken, minutesLeft);
+                log.info("@@@@@[UserPillService] minutes-left: 이미 복용 or 시간 지남: user={}, isTaken={}, minutesLeft={}@@@@@", email, isTaken, minutesLeft);
                 minutesLeft = 0;
             } else {
-                log.info("[UserPillService] minutes-left: user={}, isTaken={}, minutesLeft={}", email, isTaken, minutesLeft);
+                log.info("@@@@@[UserPillService] minutes-left: user={}, isTaken={}, minutesLeft={}@@@@@", email, isTaken, minutesLeft);
             }
 
             return new TodayPillResponse(isTaken, minutesLeft);
         } catch(Exception e) {
-            log.error("[UserPIllService] minutes-left 조회 중 예외: user={}, error={}", email, e.getMessage());
+            log.error("@@@@@[UserPIllService] minutes-left 조회 중 예외: user={}, error={}@@@@@", email, e.getMessage());
             throw e;
         }
     }
