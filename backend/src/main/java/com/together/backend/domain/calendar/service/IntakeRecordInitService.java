@@ -3,13 +3,12 @@ package com.together.backend.domain.calendar.service;
 import com.together.backend.domain.calendar.model.entity.IntakeRecord;
 import com.together.backend.domain.calendar.model.entity.IntakeType;
 import com.together.backend.domain.calendar.repository.IntakeRecordRepository;
-import com.together.backend.domain.pill.model.IntakeOption;
-import com.together.backend.domain.pill.model.UserPill;
+import com.together.backend.domain.pill.model.entity.IntakeOption;
+import com.together.backend.domain.pill.model.entity.UserPill;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor

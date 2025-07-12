@@ -1,6 +1,7 @@
 ## 👩🏼‍❤️‍👨🏼 ToGetHer
-### 우리의 피임, 함께라서 더 안전하고 편안하게.
 
+## [➡️ToGetHer 바로가기](https://7-together.kro.kr/)
+### 우리의 피임, 함께라서 더 안전하고 편안하게.
 ---
 
 ## 📌 Main Function
@@ -108,7 +109,7 @@
 
 ---
 <details>
-<summary> <h2>📁 Fold er Structure</h2></summary>
+<summary> <h2>📁 Folder Structure</h2></summary>
     <div markdown="1">
 <h3>도메인 중심 구조 설계(DDD 구조)</h3> 
         
