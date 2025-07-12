@@ -19,8 +19,9 @@ public class BasicRecord {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "mood_emoji", length = 10)
-    private String moodEmoji;
+    private MoodType moodEmoji;
 
     @Column(name = "occured_at")
     private LocalDateTime occuredAt;

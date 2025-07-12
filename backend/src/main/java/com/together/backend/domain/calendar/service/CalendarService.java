@@ -18,19 +18,20 @@ import com.together.backend.domain.pill.model.UserPill;
 import com.together.backend.domain.pill.repository.UserPillRepository;
 import com.together.backend.domain.user.model.entity.Role;
 import com.together.backend.domain.user.model.entity.User;
+import com.together.backend.domain.calendar.model.entity.MoodType;
 import com.together.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class CalendarService {
     private final RelationRecordRepository relationRecordRepository;
@@ -112,6 +113,7 @@ public class CalendarService {
             if (isFemale) {
                 // [불가] 콘돔 사용여부
                 if (request.getUsedCondom() != null) {
+                    log.warn("[CalendarService] 여성 유저가 콘돔 사용여부 등록 시도");
                     throw new IllegalArgumentException("여성은 콘돔 사용여부를 등록할 수 없습니다.");
                 }
                 // [가능] 관계 여부
@@ -125,7 +127,10 @@ public class CalendarService {
                         .orElseThrow(() -> new RuntimeException("UserPill 정보 없음"));
                 IntakeRecord intakeRecord = intakeRecordRepository
                         .findByUserPillAndIntakeDate(userPill, date)
-                        .orElseThrow(() -> new RuntimeException("복용 기록 없음"));
+                        .orElseThrow(() -> {
+                            log.warn("[CalendarService] 복용 기록 없음: date={}",date);
+                            return new RuntimeException("복용 기록이 없습니다.");
+                        });
 
                 if (request.getTakenPill() != null) {
                     // 기존값과 비교
@@ -138,10 +143,11 @@ public class CalendarService {
                     if((prevTaken == null || !prevTaken) && nowTaken) {
                         if(curRemain > 0) {
                             userPill.setCurrentRemain(curRemain - 1);
-
+                            log.info("[CalendarService] 복용 잔량 감소: remain={}", curRemain - 1);
                         }
                     } else if((prevTaken != null && prevTaken) && !nowTaken) {
                         userPill.setCurrentRemain(curRemain + 1);
+                        log.info("[CalendarService] 복용 잔량 복구: remain={}", curRemain + 1);
                     }
                     userPillRepository.save(userPill);
                     intakeRecordRepository.save(intakeRecord);
@@ -153,11 +159,16 @@ public class CalendarService {
                             .user(user)
                             .intakeRecord(intakeRecord)
                             .occuredAt(date.atStartOfDay())
-                            .moodEmoji(request.getMoodEmoji())
                             .build();
-                } else {
-                    if (request.getMoodEmoji() != null)
+                }
+                if (request.getMoodEmoji() != null) {
+                    try {
                         basicRecord.setMoodEmoji(request.getMoodEmoji());
+                        log.info("[CalendarService] 감정 기록: userId={}, mood={}", user.getUserId(), request.getMoodEmoji());
+                    } catch (IllegalArgumentException e) {
+                        log.warn("[CalendarService] 잘못된 감정 코드: {}", request.getMoodEmoji());
+                        throw new IllegalArgumentException("지원하지 않는 감정 코드입니다: " + request.getMoodEmoji());
+                    }
                 }
                 basicRecordRepository.save(basicRecord);
 
@@ -176,6 +187,7 @@ public class CalendarService {
             } else if (isMale) {
                 // [불가] 감정, 복용 기록
                 if (request.getMoodEmoji() != null || request.getTakenPill() != null) {
+                    log.warn("[CalendarService] 남성 파트너가 감정/복용 기록 시도: userId={}", user.getUserId());
                     throw new IllegalArgumentException("파트너(남성)는 감정 및 복용 기록을 등록할 수 없습니다.");
                 }
                 // [처음 생성] 여성 기록 관련 필드는 builder에서 이미 null로 처리함
@@ -191,10 +203,11 @@ public class CalendarService {
 
             // 4. RelationRecord 저장
             relationRecordRepository.save(relationRecord);
+            log.info("[CalendarService] RelationRecord 저장 완료: userId={}, partnerUserId={}, date={}", female.getUserId(), male.getUserId(), date);
 
         } catch (Exception e) {
-            System.out.println("[캘린더 기록][에러] " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("[CalendarService][에러] " + e.getMessage());
+            log.error("[CalendarService] 에러={}", e.getMessage());
             throw e;
         }
     }
@@ -277,7 +290,7 @@ public class CalendarService {
         }
 
         // 3. 감정 기록(항상 여자 user_id로 조회!)
-        String moodEmoji = basicRecordRepository
+        MoodType moodEmoji = basicRecordRepository
                 .findAllByUserAndOccuredAtBetween(female, date.atStartOfDay(), date.atTime(23, 59, 59))
                 .stream()
                 .findFirst()
