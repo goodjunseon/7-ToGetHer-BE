@@ -1,7 +1,7 @@
 ## [➡️ ToGetHer 바로가기](https://7-together.kro.kr/)
 
 ---
-![Together_1.png](document/Together_1.png)
+![Together_0.png](document/Together_0.png)
 ![Together_2.png](document/Together_2.png)
 ![Together_3.png](document/Together_3.png)
 ![Together_4.png](document/Together_4.png)
