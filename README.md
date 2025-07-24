@@ -1,9 +1,23 @@
-## 👩🏼‍❤️‍👨🏼 ToGetHer
+## [➡️ ToGetHer 바로가기](https://7-together.kro.kr/)
 
-## [➡️ToGetHer 바로가기](https://7-together.kro.kr/)
-### 우리의 피임, 함께라서 더 안전하고 편안하게.
+---
+![Together_1.png](document/Together_1.png)
+![Together_2.png](document/Together_2.png)
+![Together_3.png](document/Together_3.png)
+![Together_4.png](document/Together_4.png)
+![Together_5.png](document/Together_5.png)
 ---
 
+## ✨ Contributors
+
+| 항목       | 박준선 | 임승우 |
+|------------|--------|--------|
+| **프로필**   | <img src="https://github.com/goodjunseon.png" width="100"> | <img src="https://github.com/swoo0514.png" width="100"> |
+| **GitHub**  | [@goodjunseon](https://github.com/goodjunseon) | [@Lims](https://github.com/swoo0514) |
+
+
+
+---
 ## 📌 Main Function
 
 ### **👤 회원 기능 (인증 및 인가)**
@@ -66,15 +80,6 @@
     - **감정 기록 알림**
     - **약 구매 알림**
     - **파트너 연동 수락 알림**
-
----
-
-## ✨ Contributors
-
-| 항목       | 박준선 | 임승우 |
-|------------|--------|--------|
-| **프로필**   | <img src="https://github.com/goodjunseon.png" width="100"> | <img src="https://github.com/swoo0514.png" width="100"> |
-| **GitHub**  | [@goodjunseon](https://github.com/goodjunseon) | [@Lims](https://github.com/swoo0514) |
 
 ---
 ## 💫 Architecture
